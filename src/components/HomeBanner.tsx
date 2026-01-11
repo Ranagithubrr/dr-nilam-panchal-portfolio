@@ -1,14 +1,19 @@
 import Image from "next/image";
-import bannerImage from "@/assets/banner.png";
 
-const HomeBanner = () => {
+type HomeBannerProps = {
+  bannerImageUrl: string;
+};
+
+const HomeBanner = ({ bannerImageUrl }: HomeBannerProps) => {
   return (
     <section className="pt-6">
-      <div className="relative overflow-hidden rounded-3xl border border-white/60 bg-white/50 shadow-2xl">
+      <div className="relative h-56 overflow-hidden rounded-3xl border border-white/60 bg-white/50 shadow-2xl md:h-72">
         <Image
-          src={bannerImage}
+          src={bannerImageUrl}
           alt="Research group"
-          className="h-56 w-full object-cover md:h-72"
+          fill
+          sizes="(max-width: 768px) 100vw, 960px"
+          className="object-cover"
           priority
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent" />

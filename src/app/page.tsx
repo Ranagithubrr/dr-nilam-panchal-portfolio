@@ -1,16 +1,18 @@
 import HomeBanner from "@/components/HomeBanner";
 import HomeSidebar from "@/components/HomeSidebar";
 import HomeMainContent from "@/components/HomeMainContent";
+import { getSiteContent } from "@/lib/siteContent";
 
-const Home = () => {
+const Home = async () => {
+  const content = await getSiteContent();
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
       <div className="max-w-6xl mx-auto px-4 pb-16">
-        <HomeBanner />
+        <HomeBanner bannerImageUrl={content.bannerImageUrl} />
 
         <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
-          <HomeSidebar />
-          <HomeMainContent />
+          <HomeSidebar profileImageUrl={content.profileImageUrl} />
+          <HomeMainContent content={content} />
         </div>
       </div>
     </div>

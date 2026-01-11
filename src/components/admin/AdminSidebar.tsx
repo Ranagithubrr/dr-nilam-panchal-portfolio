@@ -1,11 +1,14 @@
+"use client";
+
 import Image from "next/image";
 import { BookOpen, CalendarCheck, Mail, MapPin, Medal } from "lucide-react";
 
-type HomeSidebarProps = {
+type AdminSidebarProps = {
   profileImageUrl: string;
+  onUpload: (file: File) => void;
 };
 
-const HomeSidebar = ({ profileImageUrl }: HomeSidebarProps) => {
+const AdminSidebar = ({ profileImageUrl, onUpload }: AdminSidebarProps) => {
   return (
     <aside className="space-y-6 lg:sticky lg:top-24">
       <div className="rounded-2xl border border-white/80 bg-white/80 p-5 shadow-xl backdrop-blur">
@@ -17,8 +20,20 @@ const HomeSidebar = ({ profileImageUrl }: HomeSidebarProps) => {
             width={176}
             height={176}
           />
+          <label className="absolute -bottom-3 rounded-full bg-white px-3 py-1 text-[10px] font-semibold text-[#17323D] shadow-md">
+            Update photo
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) onUpload(file);
+              }}
+            />
+          </label>
         </div>
-        <h2 className="mt-4 text-xl font-semibold text-[#17323D]">
+        <h2 className="mt-6 text-xl font-semibold text-[#17323D]">
           Patrick Manser
         </h2>
         <p className="mt-1 text-sm text-[#5a6b73]">
@@ -45,18 +60,18 @@ const HomeSidebar = ({ profileImageUrl }: HomeSidebarProps) => {
           Quick Links
         </h3>
         <div className="mt-4 space-y-3 text-sm text-[#1f2f36]">
-          <a className="flex items-center gap-2 hover:text-[#7A4C2C]" href="#publications">
+          <span className="flex items-center gap-2">
             <BookOpen size={16} />
             Publications
-          </a>
-          <a className="flex items-center gap-2 hover:text-[#7A4C2C]" href="#awards">
+          </span>
+          <span className="flex items-center gap-2">
             <Medal size={16} />
             Awards & Grants
-          </a>
-          <a className="flex items-center gap-2 hover:text-[#7A4C2C]" href="#talks">
+          </span>
+          <span className="flex items-center gap-2">
             <CalendarCheck size={16} />
             Talks & Teaching
-          </a>
+          </span>
         </div>
       </div>
 
@@ -75,46 +90,46 @@ const HomeSidebar = ({ profileImageUrl }: HomeSidebarProps) => {
           Social Links
         </h3>
         <div className="mt-4 space-y-2 text-sm text-[#1f2f36]">
-          <a className="flex items-center gap-3 hover:text-[#7A4C2C]" href="https://www.linkedin.com">
+          <span className="flex items-center gap-3">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#17323D]/10 text-[10px] font-semibold uppercase text-[#17323D]">
               in
             </span>
             LinkedIn
-          </a>
-          <a className="flex items-center gap-3 hover:text-[#7A4C2C]" href="https://www.researchgate.net">
+          </span>
+          <span className="flex items-center gap-3">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#17323D]/10 text-[10px] font-semibold uppercase text-[#17323D]">
               r
             </span>
             ResearchGate
-          </a>
-          <a className="flex items-center gap-3 hover:text-[#7A4C2C]" href="https://www.webofscience.com">
+          </span>
+          <span className="flex items-center gap-3">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#17323D]/10 text-[10px] font-semibold uppercase text-[#17323D]">
               w
             </span>
             Web of Science
-          </a>
-          <a className="flex items-center gap-3 hover:text-[#7A4C2C]" href="https://orcid.org">
+          </span>
+          <span className="flex items-center gap-3">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#17323D]/10 text-[10px] font-semibold uppercase text-[#17323D]">
               id
             </span>
             ORCID
-          </a>
-          <a className="flex items-center gap-3 hover:text-[#7A4C2C]" href="https://scholar.google.com">
+          </span>
+          <span className="flex items-center gap-3">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#17323D]/10 text-[10px] font-semibold uppercase text-[#17323D]">
               g
             </span>
             Google Scholar
-          </a>
-          <a className="flex items-center gap-3 hover:text-[#7A4C2C]" href="#">
+          </span>
+          <span className="flex items-center gap-3">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#17323D]/10 text-[10px] font-semibold uppercase text-[#17323D]">
               i
             </span>
             Institutional Web Page
-          </a>
+          </span>
         </div>
       </div>
     </aside>
   );
 };
 
-export default HomeSidebar;
+export default AdminSidebar;
