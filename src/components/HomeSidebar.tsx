@@ -4,13 +4,13 @@ import profileImage from "@/assets/profile.jpg";
 
 const HomeSidebar = () => {
   return (
-    <aside className="space-y-6 lg:sticky lg:top-24">
+    <aside className="space-y-6 lg:sticky">
       <div className="rounded-2xl border border-white/80 bg-white/80 p-5 shadow-xl backdrop-blur">
-        <div className="relative -mt-12 flex justify-center">
+        <div className="relative flex justify-center -mt-28">
           <Image
             src={profileImage}
             alt="Profile portrait"
-            className="h-32 w-32 rounded-2xl border-4 border-white object-cover shadow-lg"
+            className="h-44 w-44 rounded-2xl border-4 border-white object-cover shadow-lg"
           />
         </div>
         <h2 className="mt-4 text-xl font-semibold text-[#17323D]">
@@ -56,16 +56,57 @@ const HomeSidebar = () => {
       </div>
 
       <div className="rounded-2xl border border-white/80 bg-[#17323D] p-5 text-white shadow-lg">
-        <p className="text-sm uppercase tracking-[0.2em] text-white/70">
-          Office Hours
+        <p className="text-sm leading-relaxed text-white/90">
+          Science thrives on collaboration and critical discussion. If you&apos;re
+          curious to learn more about my work, open to engaging with my mission,
+          or interested in building a shared vision, I’d love to hear from you.
+          Please get in touch via email (see above) or through one of the
+          platforms below.
         </p>
-        <p className="mt-2 text-sm text-white/90">
-          Available for collaborations and supervision inquiries.
-        </p>
-        <button className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#F2D7A0] px-4 py-2 text-xs font-semibold text-[#17323D]">
-          Book a meeting
-          <ArrowUpRight size={14} />
-        </button>
+      </div>
+
+      <div className="rounded-2xl border border-white/80 bg-white/80 p-5 shadow-lg backdrop-blur">
+        <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+          Social Links
+        </h3>
+        <div className="mt-4 space-y-2 text-sm text-[#1f2f36]">
+          <a className="flex items-center gap-3 hover:text-[#7A4C2C]" href="https://www.linkedin.com">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#17323D]/10 text-[10px] font-semibold uppercase text-[#17323D]">
+              in
+            </span>
+            LinkedIn
+          </a>
+          <a className="flex items-center gap-3 hover:text-[#7A4C2C]" href="https://www.researchgate.net">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#17323D]/10 text-[10px] font-semibold uppercase text-[#17323D]">
+              r
+            </span>
+            ResearchGate
+          </a>
+          <a className="flex items-center gap-3 hover:text-[#7A4C2C]" href="https://www.webofscience.com">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#17323D]/10 text-[10px] font-semibold uppercase text-[#17323D]">
+              w
+            </span>
+            Web of Science
+          </a>
+          <a className="flex items-center gap-3 hover:text-[#7A4C2C]" href="https://orcid.org">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#17323D]/10 text-[10px] font-semibold uppercase text-[#17323D]">
+              id
+            </span>
+            ORCID
+          </a>
+          <a className="flex items-center gap-3 hover:text-[#7A4C2C]" href="https://scholar.google.com">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#17323D]/10 text-[10px] font-semibold uppercase text-[#17323D]">
+              g
+            </span>
+            Google Scholar
+          </a>
+          <a className="flex items-center gap-3 hover:text-[#7A4C2C]" href="#">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#17323D]/10 text-[10px] font-semibold uppercase text-[#17323D]">
+              i
+            </span>
+            Institutional Web Page
+          </a>
+        </div>
       </div>
     </aside>
   );
