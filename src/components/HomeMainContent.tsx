@@ -1,57 +1,16 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { ArrowUpRight, Quote } from "lucide-react";
 
 const ReactPlayer = dynamic(() => import("react-player/lazy"), {
   ssr: false,
 });
 
-const highlights = [
-  {
-    title: "Human-centered Health Tech",
-    description:
-      "Designing personalized exergame systems that blend clinical rigor with playful engagement.",
-  },
-  {
-    title: "Cognitive-Motor Learning",
-    description:
-      "Exploring how movement and cognition co-adapt to support rehabilitation and aging.",
-  },
-  {
-    title: "Implementation in the Wild",
-    description:
-      "Bringing lab insights into hospitals, communities, and home-based care settings.",
-  },
-];
-
-const publications = [
-  {
-    title: "Co-designing adaptive exergames for neurorehabilitation",
-    venue: "Journal of Neuroengineering, 2024",
-  },
-  {
-    title: "A framework for motor-cognitive personalization",
-    venue: "CHI Health, 2023",
-  },
-  {
-    title: "Implementation toolkits for digital therapeutics",
-    venue: "JMIR Rehabilitation, 2022",
-  },
-];
-
 const HomeMainContent = () => {
   return (
     <main className="space-y-8">
       <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
-        <h2 className="text-2xl font-semibold text-[#17323D]">Welcome</h2>
-        <p className="mt-3 text-sm leading-relaxed text-[#4c5f66]">
-          My work sits at the intersection of rehabilitation, health technology,
-          and co-design. I collaborate with clinicians, patients, and
-          technologists to build playful systems that make exercise feel
-          purposeful, measurable, and human.
-        </p>
-        <div className="mt-5 aspect-video overflow-hidden rounded-2xl border border-white/80 bg-black/90">
+        <div className="aspect-video overflow-hidden rounded-2xl border border-white/80 bg-black/90">
           <ReactPlayer
             url="https://www.youtube.com/watch?v=Fi-HdiBbIWc"
             width="100%"
@@ -61,93 +20,57 @@ const HomeMainContent = () => {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
-        {highlights.map((item) => (
-          <div
-            key={item.title}
-            className="rounded-2xl border border-white/80 bg-white/80 p-5 shadow-lg backdrop-blur"
-          >
-            <h3 className="text-base font-semibold text-[#17323D]">
-              {item.title}
-            </h3>
-            <p className="mt-2 text-sm text-[#4c5f66]">{item.description}</p>
-          </div>
-        ))}
-      </section>
-
-      <section
-        id="publications"
-        className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur"
-      >
+      <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
         <h2 className="text-2xl font-semibold text-[#17323D]">
-          Selected Publications
+          Prof. (Dr.) Nilam Panchal
         </h2>
-        <div className="mt-4 space-y-4">
-          {publications.map((item) => (
-            <div
-              key={item.title}
-              className="rounded-2xl border border-white/80 bg-[#f8f1e3] p-4 text-sm text-[#4c5f66]"
-            >
-              <p className="font-semibold text-[#17323D]">{item.title}</p>
-              <p className="mt-1 text-xs uppercase tracking-[0.2em] text-[#7A4C2C]">
-                {item.venue}
-              </p>
-            </div>
-          ))}
+        <p className="mt-2 text-sm font-semibold text-[#7A4C2C]">
+          Ph.D. (Finance), Ph.D. (HR), M. Phil, MBA, PGDIRPM, MBA, FDPM &amp;
+          SFDP (IIMA)
+        </p>
+        <p className="mt-3 text-sm text-[#4c5f66]">
+          Specialization: Finance &amp; Human Resource
+        </p>
+        <div className="mt-4 space-y-2 text-sm text-[#4c5f66]">
+          <p className="font-semibold text-[#17323D]">Title:</p>
+          <p>Professor (Management)</p>
+          <p>B.K School of Business management, Gujarat university.</p>
+          <p>Head, Dept. of Public Policy &amp; Governance Gujarat university.</p>
         </div>
-      </section>
-
-      <section
-        id="awards"
-        className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur"
-      >
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-semibold text-[#17323D]">
-            Awards & Grants
-          </h2>
-          <span className="rounded-full bg-[#F2D7A0] px-3 py-1 text-xs font-semibold text-[#17323D]">
-            8+ honors
-          </span>
+        <div className="mt-5 space-y-4 text-sm leading-relaxed text-[#4c5f66]">
+          <p className="font-semibold text-[#17323D]">Bio</p>
+          <p>
+            Prof. (Dr.) Nilam Panchal serves as Professor and Head of the
+            Department of Public Policy and Governance (DPPG), B.K. School,
+            Gujarat University. She oversees academic programmes at DPPG
+            including PhD, MBA, IMBA, PG Diploma, and Certificate courses. She
+            also holds the position of Academic Coordinator for the School of
+            International Studies and Diaspora, SAP, and DFL at Gujarat
+            University.
+          </p>
+          <p>
+            A distinguished academician, she has authored 150+ research papers
+            and 45 books. She has coordinated 452 workshops/seminars and
+            delivered 371+ expert lectures across diverse areas of Management.
+            Prof. Panchal has developed five MOOCs on UGC SWAYAM and created
+            300+ e content modules for SWAYAM PRABHA (DTH Channels) in Economics,
+            Commerce, and Management. She serves as Chief Editor of the IJMPR
+            Journal and is on the editorial boards of Vidya and Vidyavrutt
+            publications (GU).
+          </p>
+          <p>
+            She has contributed to course development for PG programmes of
+            BAOU, IGNOU, MGNCRE, and other Government of India academic
+            initiatives. She has been awarded six research and seminar grants
+            by ICSSR and NHRC (GOI). To date, 24 PhD scholars have completed
+            their doctoral research under her supervision. Prof. Panchal is a
+            Life Member of AIMA, AIMS, ISTD, NEMA, and NHRD. She has trained more
+            than 20,000 professionals through FDPs, EDPs, MDPs, and SDPs for
+            corporates and academic institutions. She was also invited as a
+            Member and Presenter to the 16th Finance Commission, Government of
+            India.
+          </p>
         </div>
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          <div className="rounded-2xl border border-white/80 bg-white/90 p-4">
-            <p className="text-sm font-semibold text-[#17323D]">
-              European Digital Health Award
-            </p>
-            <p className="mt-2 text-sm text-[#4c5f66]">
-              Recognized for human-centered rehabilitation prototypes that scale
-              to clinical practice.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-white/80 bg-white/90 p-4">
-            <p className="text-sm font-semibold text-[#17323D]">
-              Innovation in Rehabilitation Grant
-            </p>
-            <p className="mt-2 text-sm text-[#4c5f66]">
-              Funding the next generation of adaptive exergame platforms.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section
-        id="talks"
-        className="rounded-3xl border border-white/70 bg-[#17323D] p-6 text-white shadow-xl"
-      >
-        <div className="flex items-start gap-3">
-          <Quote size={24} className="text-[#F2D7A0]" />
-          <div>
-            <h2 className="text-2xl font-semibold">Talks & Teaching</h2>
-            <p className="mt-2 text-sm text-white/80">
-              Keynote at Digital Health Week · Course lead for Human-Centered
-              Rehabilitation · Doctoral supervision.
-            </p>
-          </div>
-        </div>
-        <button className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-xs uppercase tracking-[0.2em] text-white/90 hover:border-white/50">
-          Invite to speak
-          <ArrowUpRight size={14} />
-        </button>
       </section>
     </main>
   );
