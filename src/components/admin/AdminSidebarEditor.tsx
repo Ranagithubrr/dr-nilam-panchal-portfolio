@@ -3,6 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Info } from "lucide-react";
 import type { SiteContent } from "@/lib/siteContentTypes";
 import { SOCIAL_LINK_OPTIONS } from "@/lib/socialLinks";
 
@@ -302,7 +303,17 @@ const AdminSidebarEditor = () => {
               </h2>
               <div className="mt-4 grid gap-4">
                 <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
-                  Name
+                  <span className="flex items-center justify-between gap-3">
+                    Name
+                    <span className="group relative inline-flex">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full border border-[#7A4C2C]/30 bg-white text-[#7A4C2C] shadow-sm">
+                        <Info size={14} />
+                      </span>
+                      <span className="pointer-events-none absolute right-0 top-full z-10 mt-2 w-52 rounded-xl border border-white/70 bg-white/95 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#17323D] shadow-lg opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+                        Updates header name too
+                      </span>
+                    </span>
+                  </span>
                   <input
                     type="text"
                     value={content.sidebarName}
