@@ -24,8 +24,8 @@ export const PUT = async (request: NextRequest) => {
 
   try {
     const saved = await savePageContent("peer-reviews", body.html);
-    revalidateTag("page-content");
-    revalidateTag("page-content:peer-reviews");
+    revalidateTag("page-content", "max");
+    revalidateTag("page-content:peer-reviews", "max");
     return NextResponse.json(saved);
   } catch (error) {
     const message =
