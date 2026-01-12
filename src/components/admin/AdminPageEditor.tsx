@@ -57,6 +57,14 @@ const AdminPageEditor = ({ slug, title }: AdminPageEditorProps) => {
     load();
   }, [slug]);
 
+  useEffect(() => {
+    if (!message) return;
+    const timer = window.setTimeout(() => {
+      setMessage("");
+    }, 3000);
+    return () => window.clearTimeout(timer);
+  }, [message]);
+
   const handleLogin = async (event: FormEvent) => {
     event.preventDefault();
     setError("");
@@ -195,23 +203,23 @@ const AdminPageEditor = ({ slug, title }: AdminPageEditorProps) => {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="rounded-full border border-white/60 bg-white/70 px-4 py-2 text-xs font-semibold text-[#17323D]"
+                className="cursor-pointer rounded-full border border-white/60 bg-white/70 px-4 py-2 text-xs font-semibold text-[#17323D]"
               >
                 Log out
               </button>
               <button
                 type="button"
                 onClick={handleSave}
-                className="rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
+                className="cursor-pointer rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
                 disabled={isSaving}
               >
                 {isSaving ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </div>
-          {(error || message) && (
+          {error && (
             <div className="mt-3 rounded-2xl border border-white/60 bg-white/80 px-4 py-2 text-xs text-[#17323D]">
-              {error || message}
+              {error}
             </div>
           )}
         </div>
@@ -235,6 +243,11 @@ const AdminPageEditor = ({ slug, title }: AdminPageEditorProps) => {
           </main>
         </div>
       </div>
+      {message && (
+        <div className="fixed bottom-6 right-6 z-50 rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white shadow-lg">
+          {message}
+        </div>
+      )}
     </div>
   );
 };
