@@ -3,6 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Info } from "lucide-react";
 import type { SiteContent } from "@/lib/siteContentTypes";
 import { SOCIAL_LINK_OPTIONS } from "@/lib/socialLinks";
 
@@ -38,6 +39,7 @@ const AdminSidebarEditor = () => {
         setContent(contentData);
       } catch (err) {
         setError("Failed to load content.");
+        console.log(err)
       } finally {
         setIsLoading(false);
       }
@@ -45,6 +47,14 @@ const AdminSidebarEditor = () => {
 
     load();
   }, []);
+
+  useEffect(() => {
+    if (!message) return;
+    const timer = window.setTimeout(() => {
+      setMessage("");
+    }, 3000);
+    return () => window.clearTimeout(timer);
+  }, [message]);
 
   useEffect(() => {
     return () => {
@@ -238,14 +248,14 @@ const AdminSidebarEditor = () => {
             <button
               type="button"
               onClick={handleLogout}
-              className="rounded-full border border-white/60 bg-white/70 px-4 py-2 text-xs font-semibold text-[#17323D]"
+              className="cursor-pointer rounded-full border border-white/60 bg-white/70 px-4 py-2 text-xs font-semibold text-[#17323D]"
             >
               Log out
             </button>
             <button
               type="button"
               onClick={handleSave}
-              className="rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
+              className="cursor-pointer rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
               disabled={isSaving}
             >
               {isSaving ? "Saving..." : "Save Changes"}
@@ -253,9 +263,9 @@ const AdminSidebarEditor = () => {
           </div>
         </div>
 
-        {(error || message) && (
+        {error && (
           <div className="mt-4 rounded-2xl border border-white/60 bg-white/80 px-4 py-2 text-xs text-[#17323D]">
-            {error || message}
+            {error}
           </div>
         )}
 
@@ -302,7 +312,17 @@ const AdminSidebarEditor = () => {
               </h2>
               <div className="mt-4 grid gap-4">
                 <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
-                  Name
+                  <span className="flex items-center justify-between gap-3">
+                    Name
+                    <span className="group relative inline-flex">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full border border-[#7A4C2C]/30 bg-white text-[#7A4C2C] shadow-sm">
+                        <Info size={14} />
+                      </span>
+                      <span className="pointer-events-none absolute right-0 top-full z-10 mt-2 w-52 rounded-xl border border-white/70 bg-white/95 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#17323D] shadow-lg opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+                        Updates header name too
+                      </span>
+                    </span>
+                  </span>
                   <input
                     type="text"
                     value={content.sidebarName}
@@ -360,7 +380,21 @@ const AdminSidebarEditor = () => {
                       setContent({ ...content, sidebarBlurb: event.target.value })
                     }
                     placeholder="Short bio blurb"
-                    className="min-h-[120px] w-full rounded-2xl border border-white/70 bg-white/90 px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                    className="min-h-30 w-full rounded-2xl border border-white/70 bg-white/90 px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
+                  />
+                </label>
+                <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
+                  Contact Message
+                  <textarea
+                    value={content.sidebarFooter}
+                    onChange={(event) =>
+                      setContent({
+                        ...content,
+                        sidebarFooter: event.target.value,
+                      })
+                    }
+                    placeholder="Footer call-to-action text"
+                    className="min-h-30 w-full rounded-2xl border border-white/70 bg-white/90 px-4 py-3 text-sm font-normal normal-case tracking-normal text-[#2d3b41] outline-none"
                   />
                 </label>
               </div>
@@ -410,6 +444,11 @@ const AdminSidebarEditor = () => {
           </div>
         </div>
       </div>
+      {message && (
+        <div className="fixed bottom-6 right-6 z-50 rounded-full bg-[#17323D] px-4 py-2 text-xs font-semibold text-white shadow-lg">
+          {message}
+        </div>
+      )}
     </div>
   );
 };

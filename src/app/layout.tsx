@@ -1,20 +1,22 @@
-"use client";
-
 import "./globals.css";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import "draft-js/dist/Draft.css";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { getCachedSiteContent } from "@/lib/siteContent";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const content = await getCachedSiteContent();
   return (
     <html lang="en">
       <body className="antialiased">
-        <Header />
+        <Header displayName={content.sidebarName} />
         <main className="pt-20">{children}</main>
+        <Footer />
       </body>
     </html>
   );
