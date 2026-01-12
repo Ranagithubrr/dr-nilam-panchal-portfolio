@@ -3,7 +3,7 @@ import "server-only";
 import bannerImage from "@/assets/banner.png";
 import profileImage from "@/assets/profile.jpg";
 import type { SiteContent } from "@/lib/siteContentTypes";
-import mongoClient from "@/lib/mongo";
+import mongoClient, { getMongoDbName } from "@/lib/mongo";
 
 let lastKnownContent: SiteContent | null = null;
 const CONTENT_ID = "site-content";
@@ -62,12 +62,9 @@ export const getSiteContent = async (
 
   try {
     const client = await mongoClient;
-    const dbName =
-      process.env.MONGODB_DB ||
-      new URL(process.env.MONGODB_URI || "").pathname.replace("/", "") ||
-      "app";
-    const collection =
-      client.db(dbName).collection<SiteContentDocument>("site_content");
+    const collection = client
+      .db(getMongoDbName())
+      .collection<SiteContentDocument>("site_content");
     const document = await collection.findOne({ _id: CONTENT_ID });
     const data = (document?.content || document || {}) as Partial<SiteContent> & {
       name?: string;
@@ -131,12 +128,9 @@ export const saveSiteContent = async (
   }
 
   const client = await mongoClient;
-  const dbName =
-    process.env.MONGODB_DB ||
-    new URL(process.env.MONGODB_URI || "").pathname.replace("/", "") ||
-    "app";
-  const collection =
-    client.db(dbName).collection<SiteContentDocument>("site_content");
+  const collection = client
+    .db(getMongoDbName())
+    .collection<SiteContentDocument>("site_content");
   await collection.updateOne(
     { _id: CONTENT_ID },
     { $set: { content, updatedAt: new Date() } },

@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import type { SiteContent } from "@/lib/siteContentTypes";
+import { MORE_PAGES, PRIMARY_PAGES } from "@/lib/pages";
+import { usePathname } from "next/navigation";
 
 type MenuItem = {
     label: string;
@@ -11,34 +13,29 @@ type MenuItem = {
     children?: { label: string; href: string }[];
 };
 
-const menuItems: MenuItem[] = [
-    { label: "Projects", href: "#projects" },
-    { label: "Achievements", href: "#achievements" },
-    { label: "Testimonials", href: "#testimonials" },
-    { label: "Publications", href: "#publications" },
-    { label: "Awards", href: "#awards" },
-    { label: "Grants", href: "#grants" },
-    { label: "Media", href: "#media" },
-    {
-        label: "More",
-        children: [
-            { label: "Teaching", href: "#teaching" },
-            { label: "Supervision", href: "#supervision" },
-            { label: "Peer-Reviews", href: "#peer-reviews" },
-            { label: "Editorial Roles", href: "#editorial" },
-            { label: "Conference Contributions", href: "#conference" },
-            { label: "Committee and Board Duties", href: "#committee" },
-            { label: "News", href: "#news" },
-            { label: "CV", href: "#cv" },
-            { label: "Contact", href: "#contact" },
-        ],
-    },
-];
-
 const Header = () => {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
     const [displayName, setDisplayName] = useState("Prof. (Dr.) Nilam Panchal");
+    const pathname = usePathname();
+
+    const menuItems: MenuItem[] = useMemo(() => {
+        const isAdmin = pathname?.startsWith("/admin");
+        const base = isAdmin ? "/admin" : "";
+        return [
+            ...PRIMARY_PAGES.map((page) => ({
+                label: page.label,
+                href: `${base}/${page.slug}`,
+            })),
+            {
+                label: "More",
+                children: MORE_PAGES.map((page) => ({
+                    label: page.label,
+                    href: `${base}/${page.slug}`,
+                })),
+            },
+        ];
+    }, [pathname]);
 
     useEffect(() => {
         let active = true;

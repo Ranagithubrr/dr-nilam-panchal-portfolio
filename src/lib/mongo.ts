@@ -22,3 +22,9 @@ if (!global._mongoClientPromise) {
 clientPromise = global._mongoClientPromise;
 
 export default clientPromise;
+
+export const getMongoDbName = () => {
+  if (process.env.MONGODB_DB) return process.env.MONGODB_DB;
+  const pathname = uri ? new URL(uri).pathname.replace("/", "") : "";
+  return pathname || "app";
+};

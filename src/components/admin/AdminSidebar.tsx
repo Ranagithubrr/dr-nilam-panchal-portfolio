@@ -16,17 +16,29 @@ import { SOCIAL_LINK_OPTIONS } from "@/lib/socialLinks";
 type AdminSidebarProps = {
   content: SiteContent;
   showEditButton?: boolean;
+  variant?: "default" | "compact";
 };
 
-const AdminSidebar = ({ content, showEditButton }: AdminSidebarProps) => {
+const AdminSidebar = ({
+  content,
+  showEditButton,
+  variant = "default",
+}: AdminSidebarProps) => {
+  const isCompact = variant === "compact";
   return (
     <aside className="space-y-6 lg:sticky lg:top-24">
       <div className="rounded-2xl border border-white/80 bg-white/80 p-5 shadow-xl backdrop-blur">
-        <div className="relative flex justify-center -mt-28">
+        <div
+          className={`relative flex justify-center ${
+            isCompact ? "mt-0" : "-mt-28"
+          }`}
+        >
           <Image
             src={content.profileImageUrl}
             alt="Profile portrait"
-            className="h-44 w-44 rounded-2xl border-4 border-white object-cover shadow-lg"
+            className={`rounded-2xl border-4 border-white object-cover shadow-lg ${
+              isCompact ? "h-36 w-36" : "h-44 w-44"
+            }`}
             width={176}
             height={176}
             key={content.profileImageUrl}

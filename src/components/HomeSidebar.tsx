@@ -7,23 +7,31 @@ import { SOCIAL_LINK_OPTIONS } from "@/lib/socialLinks";
 
 type HomeSidebarProps = {
   content: SiteContent;
+  variant?: "default" | "compact";
 };
 
-const HomeSidebar = ({ content }: HomeSidebarProps) => {
+const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
+  const isCompact = variant === "compact";
   return (
     <aside className="space-y-6 lg:sticky lg:top-24">
       <div className="rounded-2xl border border-white/80 bg-white/80 p-5 shadow-xl backdrop-blur">
-        <div className="relative flex justify-center -mt-28">
+        <div
+          className={`relative flex justify-center ${
+            isCompact ? "mt-0" : "-mt-28"
+          }`}
+        >
           <Image
             src={content.profileImageUrl}
             alt="Profile portrait"
-            className="h-44 w-44 rounded-2xl border-4 border-white object-cover shadow-lg"
+            className={`rounded-2xl border-4 border-white object-cover shadow-lg ${
+              isCompact ? "h-36 w-36" : "h-44 w-44"
+            }`}
             width={176}
             height={176}
             key={content.profileImageUrl}
           />
         </div>
-        <h2 className="mt-4 text-xl font-semibold text-[#17323D]">
+        <h2 className={`${isCompact ? "mt-4" : "mt-4"} text-xl font-semibold text-[#17323D]`}>
           {content.sidebarName}
         </h2>
         {content.sidebarTitle && (
@@ -60,15 +68,15 @@ const HomeSidebar = ({ content }: HomeSidebarProps) => {
           Quick Links
         </h3>
         <div className="mt-4 space-y-3 text-sm text-[#1f2f36]">
-          <a className="flex items-center gap-2 hover:text-[#7A4C2C]" href="#publications">
+          <a className="flex items-center gap-2 hover:text-[#7A4C2C]" href="/publications">
             <BookOpen size={16} />
             Publications
           </a>
-          <a className="flex items-center gap-2 hover:text-[#7A4C2C]" href="#awards">
+          <a className="flex items-center gap-2 hover:text-[#7A4C2C]" href="/awards">
             <Medal size={16} />
             Awards & Grants
           </a>
-          <a className="flex items-center gap-2 hover:text-[#7A4C2C]" href="#talks">
+          <a className="flex items-center gap-2 hover:text-[#7A4C2C]" href="/teaching">
             <CalendarCheck size={16} />
             Talks & Teaching
           </a>
