@@ -1,5 +1,3 @@
-"use client";
-
 import PageContentView from "@/components/PageContentView";
 
 const Page = () => {

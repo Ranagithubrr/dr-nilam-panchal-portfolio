@@ -14,7 +14,8 @@ export type PageSlug =
   | "committee"
   | "news"
   | "cv"
-  | "contact";
+  | "contact"
+  | "privacy";
 
 export type PageLink = {
   slug: PageSlug;

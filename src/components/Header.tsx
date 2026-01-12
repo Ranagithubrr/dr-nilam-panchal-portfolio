@@ -13,10 +13,16 @@ type MenuItem = {
     children?: { label: string; href: string }[];
 };
 
-const Header = () => {
+type HeaderProps = {
+    displayName?: string;
+};
+
+const Header = ({ displayName }: HeaderProps) => {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
-    const [displayName, setDisplayName] = useState("Prof. (Dr.) Nilam Panchal");
+    const [name, setName] = useState(
+        displayName || "Prof. (Dr.) Nilam Panchal"
+    );
     const pathname = usePathname();
 
     const menuItems: MenuItem[] = useMemo(() => {
@@ -38,27 +44,28 @@ const Header = () => {
     }, [pathname]);
 
     useEffect(() => {
+        if (displayName) return;
         let active = true;
         const load = async () => {
-            const response = await fetch("/api/content", { cache: "no-store" });
+            const response = await fetch("/api/content");
             if (!response.ok) return;
             const data = (await response.json()) as SiteContent;
             if (active && data.sidebarName) {
-                setDisplayName(data.sidebarName);
+                setName(data.sidebarName);
             }
         };
         load();
         return () => {
             active = false;
         };
-    }, []);
+    }, [displayName]);
 
     return (
         <header className="fixed top-0 left-0 w-full z-50 bg-linear-to-r from-[#0F2B3A] via-[#103547] to-[#0F2B3A] text-[#F6F1E7] shadow-lg border-b border-white/10">
             <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-4">
                 {/* Logo / Name */}
                 <Link href="/" className="text-xl font-semibold tracking-wide text-[#F6F1E7] hover:text-white transition-colors">
-                    {displayName}
+                    {name}
                 </Link>
 
                 {/* Desktop Menu */}

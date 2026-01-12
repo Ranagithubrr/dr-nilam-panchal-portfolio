@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isAdminRequest } from "@/lib/adminAuth";
 import { getPageContent, savePageContent } from "@/lib/pageContent";
+import { revalidateTag } from "next/cache";
 
 export const GET = async () => {
   const content = await getPageContent("achievements");
@@ -23,6 +24,8 @@ export const PUT = async (request: NextRequest) => {
 
   try {
     const saved = await savePageContent("achievements", body.html);
+    revalidateTag("page-content");
+    revalidateTag("page-content:achievements");
     return NextResponse.json(saved);
   } catch (error) {
     const message =

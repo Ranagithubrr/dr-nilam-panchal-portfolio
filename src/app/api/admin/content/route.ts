@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isAdminRequest } from "@/lib/adminAuth";
 import { getSiteContent, saveSiteContent } from "@/lib/siteContent";
+import { revalidateTag } from "next/cache";
 import type { SiteContent } from "@/lib/siteContentTypes";
 
 export const GET = async () => {
@@ -37,6 +38,7 @@ export const PUT = async (request: NextRequest) => {
       },
     };
     const saved = await saveSiteContent(nextContent);
+    revalidateTag("site-content");
     return NextResponse.json(saved);
   } catch (error) {
     const message =

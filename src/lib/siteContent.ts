@@ -4,6 +4,7 @@ import bannerImage from "@/assets/banner.png";
 import profileImage from "@/assets/profile.jpg";
 import type { SiteContent } from "@/lib/siteContentTypes";
 import mongoClient, { getMongoDbName } from "@/lib/mongo";
+import { unstable_cache } from "next/cache";
 
 let lastKnownContent: SiteContent | null = null;
 const CONTENT_ID = "site-content";
@@ -140,3 +141,9 @@ export const saveSiteContent = async (
   lastKnownContent = content;
   return content;
 };
+
+export const getCachedSiteContent = unstable_cache(
+  async () => getSiteContent({ allowFallback: true }),
+  ["site-content"],
+  { revalidate: 300, tags: ["site-content"] }
+);

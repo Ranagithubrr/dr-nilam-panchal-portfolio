@@ -2,6 +2,7 @@ import "server-only";
 
 import mongoClient, { getMongoDbName } from "@/lib/mongo";
 import type { PageSlug } from "@/lib/pages";
+import { unstable_cache } from "next/cache";
 
 export type PageContent = {
   slug: PageSlug;
@@ -52,3 +53,10 @@ export const savePageContent = async (
   );
   return content;
 };
+
+export const getCachedPageContent = (slug: PageSlug) =>
+  unstable_cache(
+    async () => getPageContent(slug),
+    ["page-content", slug],
+    { revalidate: 300, tags: ["page-content", `page-content:${slug}`] }
+  )();
