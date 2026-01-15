@@ -1,30 +1,22 @@
-import PageItemsView from "@/components/content/PageItemsView";
-import { getCachedPageItems } from "@/lib/pageItems";
+import { Suspense } from "react";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import PageItemsClient from "@/components/content/PageItemsClient";
 
-const Page = async ({
-  searchParams,
-}: {
-  searchParams: Promise<{ page?: string }>;
-}) => {
-  const items = await getCachedPageItems("achievements");
-  const resolvedSearchParams = await searchParams;
-  const pageSize = 5;
-  const totalItems = items.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
-  const requestedPage = Number(resolvedSearchParams.page) || 1;
-  const currentPage = Math.min(Math.max(requestedPage, 1), totalPages);
-  const startIndex = (currentPage - 1) * pageSize;
-  const pagedItems = items.slice(startIndex, startIndex + pageSize);
-
+const Page = () => {
   return (
-    <PageItemsView
-      slug="achievements"
-      title="Achievements"
-      items={pagedItems}
-      currentPage={currentPage}
-      totalPages={totalPages}
-      totalItems={totalItems}
-    />
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
+          <div className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4">
+            <div className="rounded-3xl border border-white/70 bg-white/90 px-6 py-4 shadow-xl backdrop-blur">
+              <LoadingSpinner />
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <PageItemsClient slug="achievements" title="Achievements" />
+    </Suspense>
   );
 };
 
