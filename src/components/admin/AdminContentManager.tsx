@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil, Trash2, Plus } from "lucide-react";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import AdminToast from "@/components/admin/AdminToast";
@@ -65,8 +65,16 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
   const [pendingDeleteTitle, setPendingDeleteTitle] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const isEditing = useMemo(() => draft !== null, [draft]);
+  const pageSize = 5;
+  const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
+  const safePage = Math.min(Math.max(currentPage, 1), totalPages);
+  const pagedItems = useMemo(() => {
+    const startIndex = (safePage - 1) * pageSize;
+    return items.slice(startIndex, startIndex + pageSize);
+  }, [items, safePage]);
 
   const load = async () => {
     try {
@@ -89,6 +97,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
       setIsAuthenticated(session.authenticated);
       setSiteContent(siteData);
       setItems(itemsData.items ?? []);
+      setCurrentPage(1);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Failed to load content.";
@@ -446,11 +455,11 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
                       No items created yet.
                     </div>
                   ) : (
-                    items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="group rounded-2xl border border-[#e6dccb] bg-white/90 p-4 shadow-sm transition-shadow hover:shadow-md"
-                    >
+                    pagedItems.map((item) => (
+                      <div
+                        key={item.id}
+                        className="group rounded-2xl border border-[#e6dccb] bg-white/90 p-4 shadow-sm transition-shadow hover:shadow-md"
+                      >
                       <div className="flex flex-nowrap items-center justify-between gap-4">
                         <div className="flex min-w-0 items-center gap-4">
                         <div className="relative h-16 w-24 overflow-hidden rounded-2xl border border-white/80 bg-[#f3ede1]">
@@ -500,6 +509,47 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
                     ))
                   )}
                 </div>
+
+                {items.length > pageSize && (
+                  <div className="mt-6 flex items-center justify-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                      className="flex h-8 w-8 items-center justify-center rounded-full border border-white/80 bg-white/90 text-[#17323D] hover:bg-white"
+                      aria-label="Previous page"
+                      disabled={safePage === 1}
+                    >
+                      <ChevronLeft size={14} />
+                    </button>
+                    {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+                      (page) => (
+                        <button
+                          key={page}
+                          type="button"
+                          onClick={() => setCurrentPage(page)}
+                          className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border text-xs font-semibold ${
+                            page === safePage
+                              ? "border-[#17323D] bg-[#17323D] text-white"
+                              : "border-white/80 bg-white/90 text-[#17323D] hover:bg-white"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      )
+                    )}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                      }
+                      className="flex h-8 w-8 items-center justify-center rounded-full border border-white/80 bg-white/90 text-[#17323D] hover:bg-white"
+                      aria-label="Next page"
+                      disabled={safePage === totalPages}
+                    >
+                      <ChevronRight size={14} />
+                    </button>
+                  </div>
+                )}
               </section>
             )}
 
