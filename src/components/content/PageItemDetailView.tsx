@@ -1,7 +1,7 @@
 import Link from "next/link";
-import Image from "next/image";
 import HomeSidebar from "@/components/HomeSidebar";
 import PageItemVideoSection from "@/components/content/PageItemVideoSection";
+import PageItemGallery from "@/components/content/PageItemGallery";
 import type { PageItem } from "@/lib/pageItems";
 import type { PageSlug } from "@/lib/pages";
 import { getCachedSiteContent } from "@/lib/siteContent";
@@ -71,90 +71,7 @@ const PageItemDetailView = async ({
               </div>
             </section>
 
-            {item.photos.length > 0 && (
-              <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
-                <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
-                  Gallery
-                </h3>
-                <div className="mt-4 space-y-4">
-                  {item.photos.length === 1 && (
-                    <div className="flex justify-center">
-                      <div className="relative h-72 w-full max-w-3xl overflow-hidden rounded-2xl border border-white/80">
-                        <Image
-                          src={item.photos[0].url}
-                          alt={item.photos[0].alt || item.heading}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                    </div>
-                  )}
-                  {item.photos.length === 2 && (
-                    <div className="grid gap-4 md:grid-cols-2">
-                      {item.photos.map((photo) => (
-                        <div
-                          key={photo.url}
-                          className="relative h-64 overflow-hidden rounded-2xl border border-white/80"
-                        >
-                          <Image
-                            src={photo.url}
-                            alt={photo.alt || item.heading}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {item.photos.length >= 3 && (
-                    <div className="space-y-4">
-                      <div className="grid gap-4 md:grid-cols-2">
-                        {item.photos.slice(0, 2).map((photo) => (
-                          <div
-                            key={photo.url}
-                            className="relative h-60 overflow-hidden rounded-2xl border border-white/80"
-                          >
-                            <Image
-                              src={photo.url}
-                              alt={photo.alt || item.heading}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex justify-center">
-                        <div className="relative h-64 w-full max-w-2xl overflow-hidden rounded-2xl border border-white/80">
-                          <Image
-                            src={item.photos[2].url}
-                            alt={item.photos[2].alt || item.heading}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                      </div>
-                      {item.photos.length > 3 && (
-                        <div className="grid gap-4 md:grid-cols-3">
-                          {item.photos.slice(3).map((photo) => (
-                            <div
-                              key={photo.url}
-                              className="relative h-44 overflow-hidden rounded-2xl border border-white/80"
-                            >
-                              <Image
-                                src={photo.url}
-                                alt={photo.alt || item.heading}
-                                fill
-                                className="object-cover"
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </section>
-            )}
+            <PageItemGallery photos={item.photos} heading={item.heading} />
 
             <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
               <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">
