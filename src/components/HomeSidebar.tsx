@@ -9,6 +9,7 @@ import {
   MapPin,
   Medal,
 } from "lucide-react";
+import { usePathname } from "next/navigation";
 import type { SiteContent } from "@/lib/siteContentTypes";
 import { SOCIAL_LINK_OPTIONS } from "@/lib/socialLinks";
 
@@ -19,6 +20,9 @@ type HomeSidebarProps = {
 
 const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
   const isCompact = variant === "compact";
+  const pathname = usePathname();
+  const isActive = (href: string) =>
+    pathname === href || pathname?.startsWith(`${href}/`);
   return (
     <aside className="space-y-6 lg:sticky lg:top-24">
       <div className="rounded-2xl border border-white/80 bg-white/80 p-5 shadow-xl backdrop-blur">
@@ -88,15 +92,36 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
           Quick Links
         </h3>
         <div className="mt-4 space-y-3 text-sm text-[#1f2f36]">
-          <a className="flex items-center gap-2 hover:text-[#7A4C2C]" href="/publications">
+          <a
+            className={`flex items-center gap-2 transition-colors ${
+              isActive("/publications")
+                ? "underline underline-offset-4 decoration-white"
+                : "hover:text-[#7A4C2C]"
+            }`}
+            href="/publications"
+          >
             <BookOpen size={16} />
             Publications
           </a>
-          <a className="flex items-center gap-2 hover:text-[#7A4C2C]" href="/awards">
+          <a
+            className={`flex items-center gap-2 transition-colors ${
+              isActive("/awards")
+                ? "underline underline-offset-4 decoration-white"
+                : "hover:text-[#7A4C2C]"
+            }`}
+            href="/awards"
+          >
             <Medal size={16} />
             Awards & Grants
           </a>
-          <a className="flex items-center gap-2 hover:text-[#7A4C2C]" href="/teaching">
+          <a
+            className={`flex items-center gap-2 transition-colors ${
+              isActive("/teaching")
+                ? "underline underline-offset-4 decoration-white"
+                : "hover:text-[#7A4C2C]"
+            }`}
+            href="/teaching"
+          >
             <CalendarCheck size={16} />
             Talks & Teaching
           </a>

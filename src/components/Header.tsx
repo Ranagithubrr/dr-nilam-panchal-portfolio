@@ -43,6 +43,11 @@ const Header = ({ displayName }: HeaderProps) => {
         ];
     }, [pathname]);
 
+    const isActive = (href?: string) => {
+        if (!href || !pathname) return false;
+        return pathname === href || pathname.startsWith(`${href}/`);
+    };
+
     useEffect(() => {
         if (displayName) return;
         let active = true;
@@ -73,7 +78,13 @@ const Header = ({ displayName }: HeaderProps) => {
                     {menuItems.map((item) =>
                         item.children ? (
                             <div key={item.label} className="relative group">
-                                <button className="flex items-center gap-1 py-1 text-[#F6F1E7] hover:text-[#F2D7A0] transition-colors">
+                                <button
+                                    className={`flex items-center gap-1 py-1 transition-colors ${
+                                        item.children.some((child) => isActive(child.href))
+                                            ? "text-[#F6F1E7] border-b border-white"
+                                            : "text-[#F6F1E7] hover:text-[#F2D7A0]"
+                                    }`}
+                                >
                                     {item.label}
                                     <ChevronDown size={16} />
                                 </button>
@@ -83,7 +94,11 @@ const Header = ({ displayName }: HeaderProps) => {
                                         <Link
                                             key={child.label}
                                             href={child.href}
-                                            className="block px-4 py-2 text-base hover:bg-[#F8F1E3] hover:text-[#7A4C2C] transition-colors"
+                                            className={`block px-4 py-2 text-base transition-colors ${
+                                                isActive(child.href)
+                                                    ? "bg-[#F8F1E3] text-[#7A4C2C] font-semibold"
+                                                    : "hover:bg-[#F8F1E3] hover:text-[#7A4C2C]"
+                                            }`}
                                         >
                                             {child.label}
                                         </Link>
@@ -91,10 +106,14 @@ const Header = ({ displayName }: HeaderProps) => {
                                 </div>
                             </div>
                         ) : (
-                            <Link
-                                key={item.label}
-                                href={item.href!}
-                                className="py-1 text-[#F6F1E7] hover:text-[#F2D7A0] transition-colors"
+                                <Link
+                                    key={item.label}
+                                    href={item.href!}
+                                    className={`py-1 transition-colors ${
+                                    isActive(item.href)
+                                        ? "text-[#F6F1E7] border-b border-white"
+                                        : "text-[#F6F1E7] hover:text-[#F2D7A0]"
+                                }`}
                             >
                                 {item.label}
                             </Link>
@@ -128,7 +147,11 @@ const Header = ({ displayName }: HeaderProps) => {
                         item.children ? (
                             <div key={item.label} className="mt-2">
                                 <button
-                                    className="w-full flex items-center justify-between font-semibold py-2 text-[#F6F1E7] hover:text-white transition-colors"
+                                    className={`w-full flex items-center justify-between font-semibold py-2 transition-colors ${
+                                        item.children.some((child) => isActive(child.href))
+                                            ? "text-[#6EE7B7]"
+                                            : "text-[#F6F1E7] hover:text-white"
+                                    }`}
                                     onClick={() => setMobileMoreOpen(!mobileMoreOpen)}
                                     aria-expanded={mobileMoreOpen}
                                 >
@@ -145,7 +168,11 @@ const Header = ({ displayName }: HeaderProps) => {
                                                     setMobileOpen(false);
                                                     setMobileMoreOpen(false);
                                                 }}
-                                                className="block text-sm text-[#EADFCF] hover:text-white transition-colors"
+                                                className={`block text-sm transition-colors ${
+                                                    isActive(child.href)
+                                                        ? "text-[#6EE7B7] font-semibold"
+                                                        : "text-[#EADFCF] hover:text-white"
+                                                }`}
                                             >
                                                 {child.label}
                                             </Link>
@@ -161,7 +188,11 @@ const Header = ({ displayName }: HeaderProps) => {
                                     setMobileOpen(false);
                                     setMobileMoreOpen(false);
                                 }}
-                                className="block mt-2 py-1 text-[#EADFCF] hover:text-[#F2D7A0] transition-colors"
+                                className={`block mt-2 py-1 transition-colors ${
+                                    isActive(item.href)
+                                        ? "text-[#6EE7B7]"
+                                        : "text-[#EADFCF] hover:text-[#6EE7B7]"
+                                }`}
                             >
                                 {item.label}
                             </Link>
