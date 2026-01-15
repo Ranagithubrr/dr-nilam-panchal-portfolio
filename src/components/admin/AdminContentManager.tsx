@@ -11,7 +11,7 @@ import AdminToast from "@/components/admin/AdminToast";
 import ConfirmModal from "@/components/admin/ConfirmModal";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import type { SiteContent } from "@/lib/siteContentTypes";
-import type { PageItemPhoto } from "@/lib/pageItems";
+import type { PageItem, PageItemPhoto } from "@/lib/pageItems";
 import { useAdminSession } from "@/components/admin/AdminSessionProvider";
 
 const stripHtml = (html: string) =>
@@ -23,24 +23,15 @@ const getPreview = (html: string) => {
   return `${text.slice(0, 117)}...`;
 };
 
-type AdminItem = {
-  id: string;
-  heading: string;
-  author?: string;
-  publishedDate?: string;
-  thumbnailUrl?: string;
-  descriptionHtml: string;
-  photos: PageItemPhoto[];
-  videoLinks: string[];
-  pdfUrl?: string;
-};
+type AdminItem = PageItem;
+type AdminItemDraft = Omit<PageItem, "id" | "slug" | "createdAt" | "updatedAt">;
 
 type AdminContentManagerProps = {
   slug: string;
   title: string;
 };
 
-const emptyDraft: Omit<AdminItem, "id"> = {
+const emptyDraft: AdminItemDraft = {
   heading: "",
   author: "",
   publishedDate: "",
@@ -52,11 +43,18 @@ const emptyDraft: Omit<AdminItem, "id"> = {
 };
 
 const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
-  const { isAuthenticated, isLoading, siteContent } = useAdminSession();
-  const [localSiteContent, setLocalSiteContent] =
-    useState<SiteContent | null>(null);
-  const [items, setItems] = useState<AdminItem[]>([]);
-  const [draft, setDraft] = useState<Omit<AdminItem, "id"> | null>(null);
+  const {
+    isAuthenticated,
+    isLoading,
+    siteContent,
+    itemsBySlug,
+    itemsLoadingBySlug,
+    refreshItems,
+    setItemsForSlug,
+  } = useAdminSession();
+  const items = itemsBySlug[slug] ?? [];
+  const isItemsLoading = itemsLoadingBySlug[slug] ?? false;
+  const [draft, setDraft] = useState<AdminItemDraft | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pendingPhotos, setPendingPhotos] = useState<File[]>([]);
   const [pendingPdf, setPendingPdf] = useState<File | null>(null);
@@ -79,30 +77,25 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
     return items.slice(startIndex, startIndex + pageSize);
   }, [items, safePage]);
 
-  const load = async () => {
-    try {
-      const itemsRes = await fetch(`/api/admin/items/${slug}`, {
-        cache: "no-store",
-      });
-      if (!itemsRes.ok) {
-        const payload = await itemsRes.json().catch(() => ({}));
-        throw new Error(payload.error || "Failed to load content.");
-      }
-      const itemsData = await itemsRes.json();
-      setItems(itemsData.items ?? []);
-      setCurrentPage(1);
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to load content.";
-      setError(message);
-    }
-  };
-
   useEffect(() => {
     if (!isAuthenticated) return;
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug, isAuthenticated]);
+    if (!itemsBySlug[slug]) {
+      refreshItems(slug, { showLoader: true }).catch(() => {
+        setError("Failed to load content.");
+      });
+    }
+  }, [slug, isAuthenticated, itemsBySlug, refreshItems]);
+
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [slug]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   useEffect(() => {
     if (!message) return;
@@ -125,12 +118,6 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
       router.replace("/admin/login");
     }
   }, [isAuthenticated, isLoading, router]);
-
-  useEffect(() => {
-    if (siteContent) {
-      setLocalSiteContent(siteContent);
-    }
-  }, [siteContent]);
 
   const handleLogout = async () => {
     await fetch("/api/admin/logout", { method: "POST" });
@@ -242,8 +229,15 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
         const errorPayload = await response.json().catch(() => ({}));
         throw new Error(errorPayload.error || "Failed to save content.");
       }
-
-      await load();
+      const saved = (await response.json()) as AdminItem;
+      if (editingId) {
+        setItemsForSlug(
+          slug,
+          items.map((item) => (item.id === saved.id ? saved : item))
+        );
+      } else {
+        setItemsForSlug(slug, [saved, ...items]);
+      }
       resetDraft();
       setMessage("Changes saved.");
     } catch (err) {
@@ -275,7 +269,10 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
       setIsDeleting(false);
       return;
     }
-    await load();
+    setItemsForSlug(
+      slug,
+      items.filter((item) => item.id !== pendingDeleteId)
+    );
     setPendingDeleteId(null);
     setPendingDeleteTitle("");
     setMessage("Item deleted.");
@@ -308,7 +305,10 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
     setDraft({ ...draft, videoLinks: next });
   };
 
-  if (isLoading) {
+  const hasItemsLoaded = Object.prototype.hasOwnProperty.call(itemsBySlug, slug);
+  const showLoader = isLoading;
+
+  if (showLoader) {
     return (
       <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
         <div className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4">
@@ -332,7 +332,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
     );
   }
 
-  if (!localSiteContent) {
+  if (!siteContent) {
     return (
       <div className="mx-auto max-w-3xl px-6 py-16 text-center text-sm text-[#4c5f66]">
         No content loaded.
@@ -382,11 +382,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
         </div>
 
         <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
-          <AdminSidebar
-            content={localSiteContent}
-            showEditButton
-            variant="compact"
-          />
+          <AdminSidebar content={siteContent} showEditButton variant="compact" />
           <main className="space-y-8">
             {showList && (
               <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
@@ -410,7 +406,11 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
                 </div>
 
                 <div className="mt-6 space-y-4">
-                  {items.length === 0 ? (
+                  {isItemsLoading && !hasItemsLoaded ? (
+                    <div className="rounded-2xl border border-white/70 bg-white/90 px-6 py-6 text-center text-xs text-[#4c5f66] shadow-sm">
+                      <LoadingSpinner />
+                    </div>
+                  ) : items.length === 0 ? (
                     <div className="rounded-2xl border border-dashed border-[#d5c9b8] px-4 py-6 text-center text-xs text-[#4c5f66]">
                       No items created yet.
                     </div>
