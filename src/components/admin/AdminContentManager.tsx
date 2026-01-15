@@ -262,7 +262,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
     const response = await fetch(
       `/api/admin/items/${slug}/${pendingDeleteId}`,
       {
-      method: "DELETE",
+        method: "DELETE",
       }
     );
     if (!response.ok) {
@@ -273,6 +273,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
     await load();
     setPendingDeleteId(null);
     setPendingDeleteTitle("");
+    setMessage("Item deleted.");
   };
 
   const handleRemovePhoto = (url: string) => {
