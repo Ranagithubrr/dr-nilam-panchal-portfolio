@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Pencil, Trash2, Plus } from "lucide-react";
@@ -8,9 +9,10 @@ import AdminSidebar from "@/components/admin/AdminSidebar";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import AdminToast from "@/components/admin/AdminToast";
 import ConfirmModal from "@/components/admin/ConfirmModal";
-import AdminLoginPanel from "@/components/admin/AdminLoginPanel";
+import LoadingSpinner from "@/components/LoadingSpinner";
 import type { SiteContent } from "@/lib/siteContentTypes";
 import type { PageItemPhoto } from "@/lib/pageItems";
+import { useAdminSession } from "@/components/admin/AdminSessionProvider";
 
 const stripHtml = (html: string) =>
   html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
@@ -50,24 +52,23 @@ const emptyDraft: Omit<AdminItem, "id"> = {
 };
 
 const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
-  const [siteContent, setSiteContent] = useState<SiteContent | null>(null);
+  const { isAuthenticated, isLoading, siteContent } = useAdminSession();
+  const [localSiteContent, setLocalSiteContent] =
+    useState<SiteContent | null>(null);
   const [items, setItems] = useState<AdminItem[]>([]);
   const [draft, setDraft] = useState<Omit<AdminItem, "id"> | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pendingPhotos, setPendingPhotos] = useState<File[]>([]);
   const [pendingPdf, setPendingPdf] = useState<File | null>(null);
   const [pendingThumbnail, setPendingThumbnail] = useState<File | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [pendingDeleteTitle, setPendingDeleteTitle] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const router = useRouter();
 
   const isEditing = useMemo(() => draft !== null, [draft]);
   const pageSize = 5;
@@ -80,39 +81,28 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
 
   const load = async () => {
     try {
-      const [sessionRes, siteRes, itemsRes] = await Promise.all([
-        fetch("/api/admin/session", { cache: "no-store" }),
-        fetch("/api/admin/content", { cache: "no-store" }),
-        fetch(`/api/admin/items/${slug}`, { cache: "no-store" }),
-      ]);
-      const session = await sessionRes.json();
-      if (!siteRes.ok || !itemsRes.ok) {
-        const payload = await (siteRes.ok ? itemsRes : siteRes)
-          .json()
-          .catch(() => ({}));
+      const itemsRes = await fetch(`/api/admin/items/${slug}`, {
+        cache: "no-store",
+      });
+      if (!itemsRes.ok) {
+        const payload = await itemsRes.json().catch(() => ({}));
         throw new Error(payload.error || "Failed to load content.");
       }
-      const [siteData, itemsData] = await Promise.all([
-        siteRes.json(),
-        itemsRes.json(),
-      ]);
-      setIsAuthenticated(session.authenticated);
-      setSiteContent(siteData);
+      const itemsData = await itemsRes.json();
       setItems(itemsData.items ?? []);
       setCurrentPage(1);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Failed to load content.";
       setError(message);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   useEffect(() => {
+    if (!isAuthenticated) return;
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug]);
+  }, [slug, isAuthenticated]);
 
   useEffect(() => {
     if (!message) return;
@@ -130,32 +120,21 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
     return () => window.clearTimeout(timer);
   }, [error]);
 
-  const handleLogin = async (event: FormEvent) => {
-    event.preventDefault();
-    setError("");
-    setMessage("");
-
-    const response = await fetch("/api/admin/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
-
-    if (!response.ok) {
-      const payload = await response.json().catch(() => ({}));
-      setError(payload.error || "Login failed.");
-      return;
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.replace("/admin/login");
     }
+  }, [isAuthenticated, isLoading, router]);
 
-    setIsAuthenticated(true);
-    setUsername("");
-    setPassword("");
-    load();
-  };
+  useEffect(() => {
+    if (siteContent) {
+      setLocalSiteContent(siteContent);
+    }
+  }, [siteContent]);
 
   const handleLogout = async () => {
     await fetch("/api/admin/logout", { method: "POST" });
-    setIsAuthenticated(false);
+    router.replace("/admin/login");
   };
 
   const resetDraft = () => {
@@ -331,27 +310,29 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-3xl px-6 py-16 text-center text-sm text-[#4c5f66]">
-        Loading editor...
+      <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
+        <div className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4">
+          <div className="rounded-3xl border border-white/70 bg-white/90 px-6 py-4 shadow-xl backdrop-blur">
+            <LoadingSpinner />
+          </div>
+        </div>
       </div>
     );
   }
 
   if (!isAuthenticated) {
     return (
-      <AdminLoginPanel
-        subtitle="Sign in to edit this page content."
-        username={username}
-        password={password}
-        error={error}
-        onUsernameChange={setUsername}
-        onPasswordChange={setPassword}
-        onSubmit={handleLogin}
-      />
+      <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
+        <div className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4">
+          <div className="rounded-3xl border border-white/70 bg-white/90 px-6 py-4 shadow-xl backdrop-blur">
+            <LoadingSpinner />
+          </div>
+        </div>
+      </div>
     );
   }
 
-  if (!siteContent) {
+  if (!localSiteContent) {
     return (
       <div className="mx-auto max-w-3xl px-6 py-16 text-center text-sm text-[#4c5f66]">
         No content loaded.
@@ -401,7 +382,11 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
         </div>
 
         <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
-          <AdminSidebar content={siteContent} showEditButton variant="compact" />
+          <AdminSidebar
+            content={localSiteContent}
+            showEditButton
+            variant="compact"
+          />
           <main className="space-y-8">
             {showList && (
               <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">

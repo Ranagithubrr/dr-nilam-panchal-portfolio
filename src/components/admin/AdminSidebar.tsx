@@ -11,6 +11,7 @@ import {
   Medal,
   PencilLine,
 } from "lucide-react";
+import { usePathname } from "next/navigation";
 import type { SiteContent } from "@/lib/siteContentTypes";
 import { SOCIAL_LINK_OPTIONS } from "@/lib/socialLinks";
 
@@ -26,6 +27,9 @@ const AdminSidebar = ({
   variant = "default",
 }: AdminSidebarProps) => {
   const isCompact = variant === "compact";
+  const pathname = usePathname();
+  const isActive = (href: string) =>
+    pathname === href || pathname?.startsWith(`${href}/`);
   return (
     <aside className="space-y-6 lg:sticky lg:top-24">
       <div className="rounded-2xl border border-white/80 bg-white/80 p-5 shadow-xl backdrop-blur">
@@ -105,15 +109,33 @@ const AdminSidebar = ({
           Quick Links
         </h3>
         <div className="mt-4 space-y-3 text-sm text-[#1f2f36]">
-          <span className="flex items-center gap-2">
+          <span
+            className={`flex items-center gap-2 ${
+              isActive("/publications")
+                ? "underline underline-offset-4 decoration-white"
+                : ""
+            }`}
+          >
             <BookOpen size={16} />
             Publications
           </span>
-          <span className="flex items-center gap-2">
+          <span
+            className={`flex items-center gap-2 ${
+              isActive("/awards")
+                ? "underline underline-offset-4 decoration-white"
+                : ""
+            }`}
+          >
             <Medal size={16} />
             Awards & Grants
           </span>
-          <span className="flex items-center gap-2">
+          <span
+            className={`flex items-center gap-2 ${
+              isActive("/teaching")
+                ? "underline underline-offset-4 decoration-white"
+                : ""
+            }`}
+          >
             <CalendarCheck size={16} />
             Talks & Teaching
           </span>

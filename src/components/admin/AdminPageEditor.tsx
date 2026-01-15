@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { SiteContent } from "@/lib/siteContentTypes";
 import type { PageContent } from "@/lib/pageContent";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import AdminToast from "@/components/admin/AdminToast";
-import AdminLoginPanel from "@/components/admin/AdminLoginPanel";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { useAdminSession } from "@/components/admin/AdminSessionProvider";
 
 type AdminPageEditorProps = {
   slug: string;
@@ -15,49 +17,37 @@ type AdminPageEditorProps = {
 };
 
 const AdminPageEditor = ({ slug, title }: AdminPageEditorProps) => {
-  const [siteContent, setSiteContent] = useState<SiteContent | null>(null);
+  const { isAuthenticated, isLoading, siteContent } = useAdminSession();
+  const [localSiteContent, setLocalSiteContent] =
+    useState<SiteContent | null>(null);
   const [pageContent, setPageContent] = useState<PageContent | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
+    if (!isAuthenticated) return;
     const load = async () => {
       try {
-        const [sessionRes, siteRes, pageRes] = await Promise.all([
-          fetch("/api/admin/session", { cache: "no-store" }),
-          fetch("/api/admin/content", { cache: "no-store" }),
-          fetch(`/api/admin/pages/${slug}`, { cache: "no-store" }),
-        ]);
-        const session = await sessionRes.json();
-        if (!siteRes.ok || !pageRes.ok) {
-          const payload = await (siteRes.ok ? pageRes : siteRes)
-            .json()
-            .catch(() => ({}));
+        const pageRes = await fetch(`/api/admin/pages/${slug}`, {
+          cache: "no-store",
+        });
+        if (!pageRes.ok) {
+          const payload = await pageRes.json().catch(() => ({}));
           throw new Error(payload.error || "Failed to load content.");
         }
-        const [siteData, pageData] = await Promise.all([
-          siteRes.json(),
-          pageRes.json(),
-        ]);
-        setIsAuthenticated(session.authenticated);
-        setSiteContent(siteData);
+        const pageData = await pageRes.json();
         setPageContent(pageData);
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Failed to load content.";
         setError(message);
-      } finally {
-        setIsLoading(false);
       }
     };
 
     load();
-  }, [slug]);
+  }, [slug, isAuthenticated]);
 
   useEffect(() => {
     if (!message) return;
@@ -75,31 +65,21 @@ const AdminPageEditor = ({ slug, title }: AdminPageEditorProps) => {
     return () => window.clearTimeout(timer);
   }, [error]);
 
-  const handleLogin = async (event: FormEvent) => {
-    event.preventDefault();
-    setError("");
-    setMessage("");
-
-    const response = await fetch("/api/admin/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
-
-    if (!response.ok) {
-      const payload = await response.json().catch(() => ({}));
-      setError(payload.error || "Login failed.");
-      return;
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.replace("/admin/login");
     }
+  }, [isAuthenticated, isLoading, router]);
 
-    setIsAuthenticated(true);
-    setUsername("");
-    setPassword("");
-  };
+  useEffect(() => {
+    if (siteContent) {
+      setLocalSiteContent(siteContent);
+    }
+  }, [siteContent]);
 
   const handleLogout = async () => {
     await fetch("/api/admin/logout", { method: "POST" });
-    setIsAuthenticated(false);
+    router.replace("/admin/login");
   };
 
   const handleSave = async () => {
@@ -132,29 +112,18 @@ const AdminPageEditor = ({ slug, title }: AdminPageEditorProps) => {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || !pageContent) {
     return (
-      <div className="mx-auto max-w-3xl px-6 py-16 text-center text-sm text-[#4c5f66]">
-        Loading editor...
+      <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
+        <div className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4">
+          <div className="rounded-3xl border border-white/70 bg-white/90 px-6 py-4 shadow-xl backdrop-blur">
+            <LoadingSpinner />
+          </div>
+        </div>
       </div>
     );
   }
-
-  if (!isAuthenticated) {
-    return (
-      <AdminLoginPanel
-        subtitle="Sign in to edit this page content."
-        username={username}
-        password={password}
-        error={error}
-        onUsernameChange={setUsername}
-        onPasswordChange={setPassword}
-        onSubmit={handleLogin}
-      />
-    );
-  }
-
-  if (!siteContent || !pageContent) {
+  if (!localSiteContent) {
     return (
       <div className="mx-auto max-w-3xl px-6 py-16 text-center text-sm text-[#4c5f66]">
         No content loaded.
@@ -205,7 +174,11 @@ const AdminPageEditor = ({ slug, title }: AdminPageEditorProps) => {
         </div>
 
         <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
-          <AdminSidebar content={siteContent} showEditButton variant="compact" />
+          <AdminSidebar
+            content={localSiteContent}
+            showEditButton
+            variant="compact"
+          />
           <main className="space-y-8">
             <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
               <label className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]">

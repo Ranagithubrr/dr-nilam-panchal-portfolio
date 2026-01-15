@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Image from "next/image";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -51,9 +51,13 @@ const AdminLoginPanel = ({
     load();
   }, []);
 
-  const greeting = useMemo(() => getGreeting(), []);
+  const [greeting, setGreeting] = useState("Welcome");
   const name = profile.sidebarName || "Admin";
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    setGreeting(getGreeting());
+  }, []);
 
   return (
     <div className="min-h-[70vh] bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
