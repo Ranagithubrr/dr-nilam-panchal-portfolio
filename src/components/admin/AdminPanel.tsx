@@ -1,50 +1,32 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import AdminBanner from "@/components/admin/AdminBanner";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminMainContent from "@/components/admin/AdminMainContent";
-import AdminLoginPanel from "@/components/admin/AdminLoginPanel";
 import AdminToast from "@/components/admin/AdminToast";
+import LoadingSpinner from "@/components/LoadingSpinner";
 import type { SiteContent } from "@/lib/siteContentTypes";
+import { useAdminSession } from "@/components/admin/AdminSessionProvider";
 
 const AdminPanel = () => {
+  const { isAuthenticated, isLoading, siteContent, setSiteContent } =
+    useAdminSession();
   const [content, setContent] = useState<SiteContent | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [bannerPreview, setBannerPreview] = useState<string | null>(null);
   const [pendingBannerFile, setPendingBannerFile] = useState<File | null>(null);
   const [isUploadingBanner, setIsUploadingBanner] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const [sessionRes, contentRes] = await Promise.all([
-          fetch("/api/admin/session", { cache: "no-store" }),
-          fetch("/api/admin/content", { cache: "no-store" }),
-        ]);
-        const session = await sessionRes.json();
-        if (!contentRes.ok) {
-          const payload = await contentRes.json().catch(() => ({}));
-          throw new Error(payload.error || "Failed to load content.");
-        }
-        const contentData = await contentRes.json();
-        setIsAuthenticated(session.authenticated);
-        setContent(contentData);
-      } catch (err) {
-        setError("Failed to load content.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    load();
-  }, []);
+    if (siteContent && !content) {
+      setContent(siteContent);
+    }
+  }, [content, siteContent]);
 
   useEffect(() => {
     if (!message) return;
@@ -63,6 +45,12 @@ const AdminPanel = () => {
   }, [error]);
 
   useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.replace("/admin/login");
+    }
+  }, [isAuthenticated, isLoading, router]);
+
+  useEffect(() => {
     return () => {
       if (bannerPreview) {
         URL.revokeObjectURL(bannerPreview);
@@ -70,31 +58,9 @@ const AdminPanel = () => {
     };
   }, [bannerPreview]);
 
-  const handleLogin = async (event: FormEvent) => {
-    event.preventDefault();
-    setError("");
-    setMessage("");
-
-    const response = await fetch("/api/admin/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
-
-    if (!response.ok) {
-      const payload = await response.json().catch(() => ({}));
-      setError(payload.error || "Login failed.");
-      return;
-    }
-
-    setIsAuthenticated(true);
-    setUsername("");
-    setPassword("");
-  };
-
   const handleLogout = async () => {
     await fetch("/api/admin/logout", { method: "POST" });
-    setIsAuthenticated(false);
+    router.replace("/admin/login");
   };
 
   const uploadImage = async (file: File) => {
@@ -144,6 +110,7 @@ const AdminPanel = () => {
 
       const saved = (await response.json()) as SiteContent;
       setContent(saved);
+      setSiteContent(saved);
       setPendingBannerFile(null);
       if (bannerPreview) {
         URL.revokeObjectURL(bannerPreview);
@@ -172,23 +139,25 @@ const AdminPanel = () => {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-3xl px-6 py-16 text-center text-sm text-[#4c5f66]">
-        Loading admin panel...
+      <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
+        <div className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4">
+          <div className="rounded-3xl border border-white/70 bg-white/90 px-6 py-4 shadow-xl backdrop-blur">
+            <LoadingSpinner />
+          </div>
+        </div>
       </div>
     );
   }
 
   if (!isAuthenticated) {
     return (
-      <AdminLoginPanel
-        subtitle="Use your admin credentials to manage the website content."
-        username={username}
-        password={password}
-        error={error}
-        onUsernameChange={setUsername}
-        onPasswordChange={setPassword}
-        onSubmit={handleLogin}
-      />
+      <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
+        <div className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4">
+          <div className="rounded-3xl border border-white/70 bg-white/90 px-6 py-4 shadow-xl backdrop-blur">
+            <LoadingSpinner />
+          </div>
+        </div>
+      </div>
     );
   }
 

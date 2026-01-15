@@ -14,9 +14,9 @@ export default async function RootLayout({
   const content = await getCachedSiteContent();
   return (
     <html lang="en">
-      <body className="antialiased">
+      <body className="min-h-screen antialiased flex flex-col">
         <Header displayName={content.sidebarName} />
-        <main className="pt-20">{children}</main>
+        <main className="pt-20 flex-1">{children}</main>
         <BottomLinks />
         <Footer />
       </body>

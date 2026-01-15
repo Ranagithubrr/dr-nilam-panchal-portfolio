@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Info } from "lucide-react";
-import AdminLoginPanel from "@/components/admin/AdminLoginPanel";
+import LoadingSpinner from "@/components/LoadingSpinner";
 import type { SiteContent } from "@/lib/siteContentTypes";
 import { SOCIAL_LINK_OPTIONS } from "@/lib/socialLinks";
+import { useAdminSession } from "@/components/admin/AdminSessionProvider";
 
 const AdminSidebarEditor = () => {
+  const { isAuthenticated, isLoading, siteContent, setSiteContent } =
+    useAdminSession();
   const [content, setContent] = useState<SiteContent | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
   const [pendingProfileFile, setPendingProfileFile] = useState<File | null>(
@@ -21,34 +23,13 @@ const AdminSidebarEditor = () => {
   const [isUploadingCv, setIsUploadingCv] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const [sessionRes, contentRes] = await Promise.all([
-          fetch("/api/admin/session", { cache: "no-store" }),
-          fetch("/api/admin/content", { cache: "no-store" }),
-        ]);
-        const session = await sessionRes.json();
-        if (!contentRes.ok) {
-          const payload = await contentRes.json().catch(() => ({}));
-          throw new Error(payload.error || "Failed to load content.");
-        }
-        const contentData = await contentRes.json();
-        setIsAuthenticated(session.authenticated);
-        setContent(contentData);
-      } catch (err) {
-        setError("Failed to load content.");
-        console.log(err)
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    load();
-  }, []);
+    if (siteContent && !content) {
+      setContent(siteContent);
+    }
+  }, [content, siteContent]);
 
   useEffect(() => {
     if (!message) return;
@@ -59,6 +40,12 @@ const AdminSidebarEditor = () => {
   }, [message]);
 
   useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.replace("/admin/login");
+    }
+  }, [isAuthenticated, isLoading, router]);
+
+  useEffect(() => {
     return () => {
       if (profilePreview) {
         URL.revokeObjectURL(profilePreview);
@@ -66,31 +53,9 @@ const AdminSidebarEditor = () => {
     };
   }, [profilePreview]);
 
-  const handleLogin = async (event: FormEvent) => {
-    event.preventDefault();
-    setError("");
-    setMessage("");
-
-    const response = await fetch("/api/admin/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
-
-    if (!response.ok) {
-      const payload = await response.json().catch(() => ({}));
-      setError(payload.error || "Login failed.");
-      return;
-    }
-
-    setIsAuthenticated(true);
-    setUsername("");
-    setPassword("");
-  };
-
   const handleLogout = async () => {
     await fetch("/api/admin/logout", { method: "POST" });
-    setIsAuthenticated(false);
+    router.replace("/admin/login");
   };
 
   const uploadFile = async (file: File) => {
@@ -147,6 +112,7 @@ const AdminSidebarEditor = () => {
 
       const saved = (await response.json()) as SiteContent;
       setContent(saved);
+      setSiteContent(saved);
       setPendingProfileFile(null);
       setPendingCvFile(null);
       if (profilePreview) {
@@ -179,23 +145,25 @@ const AdminSidebarEditor = () => {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-3xl px-6 py-16 text-center text-sm text-[#4c5f66]">
-        Loading sidebar settings...
+      <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
+        <div className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4">
+          <div className="rounded-3xl border border-white/70 bg-white/90 px-6 py-4 shadow-xl backdrop-blur">
+            <LoadingSpinner />
+          </div>
+        </div>
       </div>
     );
   }
 
   if (!isAuthenticated) {
     return (
-      <AdminLoginPanel
-        subtitle="Sign in to update the sidebar content."
-        username={username}
-        password={password}
-        error={error}
-        onUsernameChange={setUsername}
-        onPasswordChange={setPassword}
-        onSubmit={handleLogin}
-      />
+      <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
+        <div className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4">
+          <div className="rounded-3xl border border-white/70 bg-white/90 px-6 py-4 shadow-xl backdrop-blur">
+            <LoadingSpinner />
+          </div>
+        </div>
+      </div>
     );
   }
 
