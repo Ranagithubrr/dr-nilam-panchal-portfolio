@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import HomeSidebar from "@/components/HomeSidebar";
-import VideoList from "@/components/content/VideoList";
+import PageItemVideoSection from "@/components/content/PageItemVideoSection";
 import type { PageItem } from "@/lib/pageItems";
 import type { PageSlug } from "@/lib/pages";
 import { getCachedSiteContent } from "@/lib/siteContent";
@@ -78,11 +78,7 @@ const PageItemDetailView = async ({
               />
             </section>
 
-            {item.videoLinks.length > 0 && (
-              <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
-                <VideoList videoLinks={item.videoLinks} />
-              </section>
-            )}
+            <PageItemVideoSection videoLinks={item.videoLinks ?? []} />
           </main>
         </div>
       </div>

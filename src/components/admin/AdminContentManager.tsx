@@ -208,7 +208,7 @@ const AdminContentManager = ({ slug, title }: AdminContentManagerProps) => {
         heading: draft.heading,
         descriptionHtml: draft.descriptionHtml,
         photos: nextPhotos,
-        videoLinks: draft.videoLinks,
+        videoLinks: draft.videoLinks.map((link) => link.trim()).filter(Boolean),
         pdfUrl: nextPdfUrl,
       };
 
