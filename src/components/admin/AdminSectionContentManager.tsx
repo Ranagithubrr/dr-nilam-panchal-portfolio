@@ -47,6 +47,12 @@ const emptyDraft: AdminItemDraft = {
   pdfUrl: "",
 };
 
+const ADMIN_CACHE_TTL_MS = 30_000;
+const submenuCache = new Map<string, SectionSubmenu[]>();
+const submenuCacheAt = new Map<string, number>();
+const itemsCache = new Map<string, SectionItem[]>();
+const itemsCacheAt = new Map<string, number>();
+
 const AdminSectionContentManager = ({
   section,
   title,
@@ -95,17 +101,31 @@ const AdminSectionContentManager = ({
     return filteredItems.slice(startIndex, startIndex + pageSize);
   }, [filteredItems, safePage]);
 
-  const refreshSubmenus = async (showLoader = false) => {
+  const refreshSubmenus = async (
+    showLoader = false,
+    force = false
+  ) => {
+    const now = Date.now();
+    const cached = submenuCache.get(section);
+    const cachedAt = submenuCacheAt.get(section) ?? 0;
+    const isFresh = cached && now - cachedAt < ADMIN_CACHE_TTL_MS && !force;
     if (showLoader) {
       setIsSubmenuLoading(true);
     }
     try {
-      const response = await fetch(`/api/admin/sections/${section}/submenus`, {
-        cache: "no-store",
-      });
-      if (!response.ok) return;
-      const data = (await response.json()) as { submenus?: SectionSubmenu[] };
-      const list = data.submenus ?? [];
+      let list: SectionSubmenu[] = [];
+      if (isFresh) {
+        list = cached ?? [];
+      } else {
+        const response = await fetch(`/api/admin/sections/${section}/submenus`, {
+          cache: "no-store",
+        });
+        if (!response.ok) return;
+        const data = (await response.json()) as { submenus?: SectionSubmenu[] };
+        list = data.submenus ?? [];
+        submenuCache.set(section, list);
+        submenuCacheAt.set(section, now);
+      }
       setSubmenus(list);
       if (!activeSubmenu && list.length) {
         setActiveSubmenu(list[0].slug);
@@ -120,17 +140,32 @@ const AdminSectionContentManager = ({
     }
   };
 
-  const refreshItems = async (showLoader = false) => {
+  const refreshItems = async (
+    showLoader = false,
+    force = false
+  ) => {
+    const now = Date.now();
+    const cached = itemsCache.get(section);
+    const cachedAt = itemsCacheAt.get(section) ?? 0;
+    const isFresh = cached && now - cachedAt < ADMIN_CACHE_TTL_MS && !force;
     if (showLoader) {
       setIsItemsLoading(true);
     }
     try {
-      const response = await fetch(`/api/admin/sections/${section}/items`, {
-        cache: "no-store",
-      });
-      if (!response.ok) return;
-      const data = (await response.json()) as { items?: AdminItem[] };
-      setItems(data.items ?? []);
+      let list: AdminItem[] = [];
+      if (isFresh) {
+        list = cached ?? [];
+      } else {
+        const response = await fetch(`/api/admin/sections/${section}/items`, {
+          cache: "no-store",
+        });
+        if (!response.ok) return;
+        const data = (await response.json()) as { items?: AdminItem[] };
+        list = data.items ?? [];
+        itemsCache.set(section, list);
+        itemsCacheAt.set(section, now);
+      }
+      setItems(list);
     } finally {
       setIsItemsLoading(false);
     }
@@ -297,11 +332,21 @@ const AdminSectionContentManager = ({
 
       const saved = (await response.json()) as AdminItem;
       if (editingId) {
-        setItems((prev) =>
-          prev.map((item) => (item.id === saved.id ? saved : item))
-        );
+        setItems((prev) => {
+          const next = prev.map((item) =>
+            item.id === saved.id ? saved : item
+          );
+          itemsCache.set(section, next);
+          itemsCacheAt.set(section, Date.now());
+          return next;
+        });
       } else {
-        setItems((prev) => [saved, ...prev]);
+        setItems((prev) => {
+          const next = [saved, ...prev];
+          itemsCache.set(section, next);
+          itemsCacheAt.set(section, Date.now());
+          return next;
+        });
       }
       resetDraft();
       setMessage("Changes saved.");
@@ -334,7 +379,12 @@ const AdminSectionContentManager = ({
       setIsDeleting(false);
       return;
     }
-    setItems((prev) => prev.filter((item) => item.id !== pendingDeleteId));
+    setItems((prev) => {
+      const next = prev.filter((item) => item.id !== pendingDeleteId);
+      itemsCache.set(section, next);
+      itemsCacheAt.set(section, Date.now());
+      return next;
+    });
     setPendingDeleteId(null);
     setPendingDeleteTitle("");
     setMessage("Item deleted.");
@@ -381,7 +431,12 @@ const AdminSectionContentManager = ({
         throw new Error(errorPayload.error || "Failed to create submenu.");
       }
       const created = (await response.json()) as SectionSubmenu;
-      setSubmenus((prev) => [...prev, created]);
+      setSubmenus((prev) => {
+        const next = [...prev, created];
+        submenuCache.set(section, next);
+        submenuCacheAt.set(section, Date.now());
+        return next;
+      });
       setSubmenuLabel("");
       setActiveSubmenu(created.slug);
       setMessage("Submenu created.");
@@ -418,15 +473,18 @@ const AdminSectionContentManager = ({
         throw new Error(errorPayload.error || "Failed to update submenu.");
       }
       const updated = (await response.json()) as SectionSubmenu;
-      setSubmenus((prev) =>
-        prev.map((submenu) =>
+      setSubmenus((prev) => {
+        const next = prev.map((submenu) =>
           submenu.id === updated.id ? updated : submenu
-        )
-      );
+        );
+        submenuCache.set(section, next);
+        submenuCacheAt.set(section, Date.now());
+        return next;
+      });
       setActiveSubmenu(updated.slug);
       setSubmenuEditingId(null);
       setSubmenuEditingLabel("");
-      await refreshItems(false);
+      await refreshItems(false, true);
       setMessage("Submenu updated.");
     } catch (err) {
       const message =
@@ -454,9 +512,11 @@ const AdminSectionContentManager = ({
         if (activeSubmenu === submenuPendingDelete.slug) {
           setActiveSubmenu(next[0]?.slug ?? null);
         }
+        submenuCache.set(section, next);
+        submenuCacheAt.set(section, Date.now());
         return next;
       });
-      await refreshItems(false);
+      await refreshItems(false, true);
       setMessage("Submenu deleted.");
     } catch (err) {
       const message =
