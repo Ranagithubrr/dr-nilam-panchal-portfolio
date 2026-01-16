@@ -14,6 +14,7 @@ import type { SiteContent } from "@/lib/siteContentTypes";
 
 const itemsCache = new Map<string, SectionItem[]>();
 const submenusCache = new Map<string, SectionSubmenu[]>();
+const submenusLoaded = new Set<string>();
 let siteContentCache: SiteContent | null = null;
 
 type SectionItemsClientProps = {
@@ -67,7 +68,7 @@ const SectionItemsClient = ({
     () => siteContentCache
   );
   const [isLoadingSubmenus, setIsLoadingSubmenus] = useState(
-    submenus.length === 0
+    !submenusLoaded.has(section)
   );
   const [isLoadingItems, setIsLoadingItems] = useState(false);
   const [isLoadingContent, setIsLoadingContent] = useState(!siteContent);
@@ -101,9 +102,8 @@ const SectionItemsClient = ({
   }, []);
 
   useEffect(() => {
-    const cached = submenusCache.get(section);
-    if (cached?.length) {
-      setSubmenus(cached);
+    if (submenusLoaded.has(section)) {
+      setSubmenus(submenusCache.get(section) ?? []);
       setIsLoadingSubmenus(false);
       return;
     }
@@ -118,6 +118,7 @@ const SectionItemsClient = ({
         const resolved = data.submenus ?? [];
         submenusCache.set(section, resolved);
         setSubmenus(resolved);
+        submenusLoaded.add(section);
       } finally {
         if (isActive) {
           setIsLoadingSubmenus(false);
@@ -190,9 +191,10 @@ const SectionItemsClient = ({
 
   const basePath = `/${section}`;
 
-  const isLoading = isLoadingSubmenus || isLoadingItems || isLoadingContent;
-  const pageSize = 5;
   const showItems = Boolean(initialSubmenu && activeSubmenu);
+  const isLoading =
+    isLoadingSubmenus || (showItems && isLoadingItems) || isLoadingContent;
+  const pageSize = 5;
   const paginationState = useMemo(() => {
     const allItems = showItems ? items ?? [] : [];
     const totalItems = allItems.length;
