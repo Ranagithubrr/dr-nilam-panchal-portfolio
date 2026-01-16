@@ -30,7 +30,7 @@ const Header = ({ displayName }: HeaderProps) => {
     const effectivePathname = isMounted ? pathname : "";
 
     const menuItems: MenuItem[] = useMemo(() => {
-        const isAdmin = effectivePathname?.startsWith("/admin");
+        const isAdmin = /^\/admin(?:\/|$)/.test(effectivePathname || "");
         const base = isAdmin ? "/admin" : "";
         return [
             ...PRIMARY_PAGES.map((page) => ({
