@@ -6,6 +6,7 @@ import moocsBanner from "@/assets/page-banners/MOOCs.png";
 import eventsBanner from "@/assets/page-banners/events.png";
 import teachingBanner from "@/assets/page-banners/teaching.png";
 import seminarBanner from "@/assets/page-banners/seminar.png";
+import invitedLecturesBanner from "@/assets/page-banners/invited-lecture.png";
 import achievementsBanner from "@/assets/page-banners/achievements.png";
 import administrativeBanner from "@/assets/page-banners/administrative.png";
 import othersBanner from "@/assets/page-banners/others.png";
@@ -23,6 +24,7 @@ const SectionHeaderLeft = ({ section, title }: SectionHeaderLeftProps) => {
       "events-engagements": eventsBanner,
       "teaching-training": teachingBanner,
       "seminar-conferences": seminarBanner,
+      "invited-lectures": invitedLecturesBanner,
       "achievements-awards": achievementsBanner,
       administrative: administrativeBanner,
       others: othersBanner,
