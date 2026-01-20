@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { SiteContent } from "@/lib/siteContentTypes";
 import { SOCIAL_LINK_OPTIONS } from "@/lib/socialLinks";
+import Link from "next/link";
 
 type HomeSidebarProps = {
   content: SiteContent;
@@ -36,16 +37,14 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
     <aside className="space-y-6 lg:sticky lg:top-24">
       <div className="rounded-2xl border border-white/80 bg-white/80 p-5 shadow-xl backdrop-blur">
         <div
-          className={`relative flex justify-center ${
-            isCompact ? "mt-0" : "-mt-28"
-          }`}
+          className={`relative flex justify-center ${isCompact ? "mt-0" : "-mt-28"
+            }`}
         >
           <Image
             src={content.profileImageUrl}
             alt="Profile portrait"
-            className={`rounded-2xl border-4 border-white object-cover shadow-lg ${
-              isCompact ? "h-36 w-36" : "h-44 w-44"
-            }`}
+            className={`rounded-2xl border-4 border-white object-cover shadow-lg ${isCompact ? "h-36 w-36" : "h-44 w-44"
+              }`}
             width={176}
             height={176}
             key={content.profileImageUrl}
@@ -101,39 +100,36 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
           Quick Links
         </h3>
         <div className="mt-4 space-y-3 text-sm text-[#1f2f36]">
-          <a
-            className={`flex items-center gap-2 transition-colors ${
-              isActive("/research-publications")
+          <Link
+            className={`flex items-center gap-2 transition-colors ${isActive("/research-publications")
                 ? "underline underline-offset-4 decoration-white"
                 : "hover:text-[#7A4C2C]"
-            }`}
+              }`}
             href="/research-publications"
           >
             <BookOpen size={16} />
             Research & Publications
-          </a>
-          <a
-            className={`flex items-center gap-2 transition-colors ${
-              isActive("/achievements-awards")
+          </Link>
+          <Link
+            className={`flex items-center gap-2 transition-colors ${isActive("/achievements-awards")
                 ? "underline underline-offset-4 decoration-white"
                 : "hover:text-[#7A4C2C]"
-            }`}
+              }`}
             href="/achievements-awards"
           >
             <Medal size={16} />
             Achievements & Awards
-          </a>
-          <a
-            className={`flex items-center gap-2 transition-colors ${
-              isActive("/teaching-training")
+          </Link>
+          <Link
+            className={`flex items-center gap-2 transition-colors ${isActive("/teaching-training")
                 ? "underline underline-offset-4 decoration-white"
                 : "hover:text-[#7A4C2C]"
-            }`}
+              }`}
             href="/teaching-training"
           >
             <CalendarCheck size={16} />
             Teaching & Training
-          </a>
+          </Link>
         </div>
       </div>
 
@@ -153,11 +149,14 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
           {SOCIAL_LINK_OPTIONS.map(({ id, label, Icon }) => {
             const url = content.socialLinks?.[id];
             if (!url) return null;
+
+            const finalUrl = url.startsWith("http") ? url : `https://${url}`;
+
             return (
-              <a
+              <Link
                 key={id}
                 className="flex items-center gap-3 hover:text-[#7A4C2C]"
-                href={url}
+                href={finalUrl}
                 target="_blank"
                 rel="noreferrer"
               >
@@ -165,9 +164,10 @@ const HomeSidebar = ({ content, variant = "default" }: HomeSidebarProps) => {
                   <Icon size={14} />
                 </span>
                 {label}
-              </a>
+              </Link>
             );
           })}
+
         </div>
       </div>
     </aside>

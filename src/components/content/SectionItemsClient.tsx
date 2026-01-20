@@ -301,6 +301,12 @@ const SectionItemsClient = ({
                   const thumbnail = item.thumbnailUrl
                     ? { url: item.thumbnailUrl, alt: item.heading }
                     : item.photos[0];
+                  const author = item.author?.trim();
+                  const publishedDateRaw = item.publishedDate?.trim();
+                  const publishedDate = publishedDateRaw
+                    ? formatDate(publishedDateRaw)
+                    : "";
+                  const showMeta = Boolean(author || publishedDate);
                   return (
                     <article
                       key={item.id}
@@ -349,16 +355,28 @@ const SectionItemsClient = ({
                             )}
                           </div>
                         </div>
-                        <div className="min-w-[160px] text-right text-xs text-[#4c5f66]">
-                          <div className="font-semibold text-[#17323D]">
-                            Author:
+                        {showMeta && (
+                          <div className="min-w-[160px] text-right text-xs text-[#4c5f66]">
+                            {author && (
+                              <>
+                                <div className="font-semibold text-[#17323D]">
+                                  Author:
+                                </div>
+                                <div>{author}</div>
+                              </>
+                            )}
+                            {publishedDate && (
+                              <>
+                                <div
+                                  className={`font-semibold text-[#17323D]${author ? " mt-2" : ""}`}
+                                >
+                                  Published Date:
+                                </div>
+                                <div>{publishedDate}</div>
+                              </>
+                            )}
                           </div>
-                          <div>{item.author || "---"}</div>
-                          <div className="mt-2 font-semibold text-[#17323D]">
-                            Published Date:
-                          </div>
-                          <div>{formatDate(item.publishedDate) || "---"}</div>
-                        </div>
+                        )}
                       </div>
                     </article>
                   );
