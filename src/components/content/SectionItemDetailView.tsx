@@ -27,8 +27,8 @@ const SectionItemDetailView = async ({
           <HomeSidebar content={siteContent} variant="compact" />
           <main className="space-y-6">
             <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-xl backdrop-blur">
-              <div className="flex flex-wrap items-start justify-between gap-6">
-                <div className="min-w-0">
+              <div className="flex flex-col items-start gap-6 lg:flex-row lg:items-start lg:justify-between">
+                <div className="min-w-0 flex-1">
                   <Link
                     href={`/${section}/${submenuSlug}`}
                     className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7A4C2C]"
@@ -50,30 +50,36 @@ const SectionItemDetailView = async ({
                     </a>
                   )}
                 </div>
-                <div className="min-w-[200px] rounded-2xl border border-white/70 bg-white/90 px-4 py-4 text-xs text-[#4c5f66] shadow-sm">
-                  <div className="flex items-start gap-2">
-                    <span className="mt-0.5 text-[#7A4C2C]">
-                      <User size={14} />
-                    </span>
-                    <div>
-                      <div className="font-semibold text-[#17323D]">
-                        Author
+                {(item.author?.trim() || item.publishedDate?.trim()) && (
+                  <div className="w-full shrink-0 rounded-2xl border border-white/70 bg-white/90 px-4 py-4 text-xs text-[#4c5f66] shadow-sm sm:w-auto sm:min-w-[200px]">
+                    {item.author?.trim() && (
+                      <div className="flex items-start gap-2">
+                        <span className="mt-0.5 text-[#7A4C2C]">
+                          <User size={14} />
+                        </span>
+                        <div>
+                          <div className="font-semibold text-[#17323D]">
+                            Author
+                          </div>
+                          <div className="mt-1">{item.author}</div>
+                        </div>
                       </div>
-                      <div className="mt-1">{item.author || "---"}</div>
-                    </div>
-                  </div>
-                  <div className="mt-4 flex items-start gap-2">
-                    <span className="mt-0.5 text-[#7A4C2C]">
-                      <Calendar size={14} />
-                    </span>
-                    <div>
-                      <div className="font-semibold text-[#17323D]">
-                        Published Date
+                    )}
+                    {item.publishedDate?.trim() && (
+                      <div className={`${item.author?.trim() ? "mt-4" : ""} flex items-start gap-2`}>
+                        <span className="mt-0.5 text-[#7A4C2C]">
+                          <Calendar size={14} />
+                        </span>
+                        <div>
+                          <div className="font-semibold text-[#17323D]">
+                            Published Date
+                          </div>
+                          <div className="mt-1">{item.publishedDate}</div>
+                        </div>
                       </div>
-                      <div className="mt-1">{item.publishedDate || "---"}</div>
-                    </div>
+                    )}
                   </div>
-                </div>
+                )}
               </div>
             </section>
 
