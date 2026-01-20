@@ -5,7 +5,10 @@ export type SocialLinkId =
   | "youtube"
   | "facebook"
   | "instagram"
-  | "website";
+  | "website"
+  | "vidwan"
+  | "googleScholar"
+  | "orcid";
 
 export type SiteContent = {
   bannerImageUrl: string;

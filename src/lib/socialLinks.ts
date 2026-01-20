@@ -3,7 +3,10 @@ import {
   Github,
   Globe,
   Instagram,
+  GraduationCap,
+  IdCard,
   Linkedin,
+  BookOpen,
   Twitter,
   Youtube,
 } from "lucide-react";
@@ -58,5 +61,23 @@ export const SOCIAL_LINK_OPTIONS: SocialLinkOption[] = [
     label: "Website",
     Icon: Globe,
     placeholder: "https://example.com",
+  },
+  {
+    id: "vidwan",
+    label: "Vidwan",
+    Icon: GraduationCap,
+    placeholder: "https://vidwan.inflibnet.ac.in/profile/xxxxxx",
+  },
+  {
+    id: "googleScholar",
+    label: "Google Scholar",
+    Icon: BookOpen,
+    placeholder: "https://scholar.google.com/citations?user=xxxxxx",
+  },
+  {
+    id: "orcid",
+    label: "ORCID iD",
+    Icon: IdCard,
+    placeholder: "https://orcid.org/0000-0000-0000-0000",
   },
 ];
