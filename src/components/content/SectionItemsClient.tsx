@@ -312,7 +312,7 @@ const SectionItemsClient = ({
                       key={item.id}
                       className="rounded-3xl border border-white/70 bg-white/95 p-4 shadow-xl backdrop-blur sm:p-5"
                     >
-                      <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
                         <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-white/80 bg-[#f3ede1] sm:h-24 sm:w-24">
                           {thumbnail ? (
                             <Image
@@ -328,10 +328,10 @@ const SectionItemsClient = ({
                           )}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h2 className="truncate text-base font-semibold text-[#17323D]">
+                          <h2 className="line-clamp-2 text-base font-semibold text-[#17323D]">
                             {item.heading}
                           </h2>
-                          <p className="mt-2 text-sm text-[#4c5f66]">
+                          <p className="mt-2 line-clamp-3 text-sm text-[#4c5f66]">
                             {preview || "No description yet."}
                           </p>
                           <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -356,7 +356,7 @@ const SectionItemsClient = ({
                           </div>
                         </div>
                         {showMeta && (
-                          <div className="min-w-[160px] text-right text-xs text-[#4c5f66]">
+                          <div className="text-xs text-[#4c5f66] sm:min-w-[160px] sm:text-right">
                             {author && (
                               <>
                                 <div className="font-semibold text-[#17323D]">
