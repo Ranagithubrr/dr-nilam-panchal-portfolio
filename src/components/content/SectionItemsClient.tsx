@@ -216,7 +216,7 @@ const SectionItemsClient = ({
     return { pagedItems, totalItems, totalPages, currentPage };
   }, [items, searchParams]);
 
-  if (isLoading || !siteContent) {
+  if (!siteContent) {
     return (
       <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f1e7_0%,#f3ede1_35%,#ebe4d6_65%,#e2d9c7_100%)]">
         <div className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4">
@@ -244,7 +244,16 @@ const SectionItemsClient = ({
                         Submenus
                       </h2>
                       <div className="mt-3 space-y-2">
-                        {submenus.length === 0 ? (
+                        {isLoadingSubmenus ? (
+                          <>
+                            {Array.from({ length: 4 }).map((_, index) => (
+                              <div
+                                key={index}
+                                className="skeleton-shimmer h-10 rounded-2xl border border-white/70"
+                              />
+                            ))}
+                          </>
+                        ) : submenus.length === 0 ? (
                           <div className="rounded-2xl border border-dashed border-[#e1d6c6] bg-white/70 px-4 py-6 text-center text-xs text-[#4c5f66]">
                             No submenus yet. Please check back soon.
                           </div>
@@ -291,7 +300,33 @@ const SectionItemsClient = ({
             )}
 
             <section className="space-y-4">
-              {!activeSubmenu || !showItems ? null : paginationState.pagedItems.length === 0 ? (
+              {!activeSubmenu || !showItems ? null : isLoadingItems || isLoadingContent ? (
+                <>
+                  {Array.from({ length: 3 }).map((_, index) => (
+                    <div
+                      key={index}
+                      className="rounded-3xl border border-white/70 bg-white/95 p-4 shadow-xl backdrop-blur sm:p-5"
+                    >
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+                        <div className="skeleton-shimmer h-20 w-20 rounded-2xl sm:h-24 sm:w-24" />
+                        <div className="min-w-0 flex-1 space-y-3">
+                          <div className="skeleton-shimmer h-5 w-3/4 rounded-full" />
+                          <div className="skeleton-shimmer h-4 w-full rounded-full" />
+                          <div className="skeleton-shimmer h-4 w-5/6 rounded-full" />
+                          <div className="flex flex-wrap items-center gap-3">
+                            <div className="skeleton-shimmer h-8 w-28 rounded-full" />
+                            <div className="skeleton-shimmer h-8 w-32 rounded-full" />
+                          </div>
+                        </div>
+                        <div className="space-y-2 sm:min-w-[160px]">
+                          <div className="skeleton-shimmer h-4 w-20 rounded-full sm:ml-auto" />
+                          <div className="skeleton-shimmer h-4 w-24 rounded-full sm:ml-auto" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              ) : paginationState.pagedItems.length === 0 ? (
                 <div className="rounded-3xl border border-white/70 bg-white/95 p-8 text-center text-sm text-[#4c5f66] shadow-xl backdrop-blur">
                   No content yet. Please check back soon.
                 </div>
