@@ -11,10 +11,12 @@ const AdminLoginPage = () => {
   const [error, setError] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleLogin = async (event: FormEvent) => {
     event.preventDefault();
     setError("");
+    setIsSubmitting(true);
 
     const response = await fetch("/api/admin/login", {
       method: "POST",
@@ -25,6 +27,7 @@ const AdminLoginPage = () => {
     if (!response.ok) {
       const payload = await response.json().catch(() => ({}));
       setError(payload.error || "Login failed.");
+      setIsSubmitting(false);
       return;
     }
 
@@ -38,6 +41,7 @@ const AdminLoginPage = () => {
       username={username}
       password={password}
       error={error}
+      isSubmitting={isSubmitting}
       onUsernameChange={setUsername}
       onPasswordChange={setPassword}
       onSubmit={handleLogin}
