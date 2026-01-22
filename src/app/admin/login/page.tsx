@@ -3,9 +3,11 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import AdminLoginPanel from "@/components/admin/AdminLoginPanel";
+import { useAdminSession } from "@/components/admin/AdminSessionProvider";
 
 const AdminLoginPage = () => {
   const router = useRouter();
+  const { refreshSession } = useAdminSession();
   const [error, setError] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -26,6 +28,7 @@ const AdminLoginPage = () => {
       return;
     }
 
+    await refreshSession({ showLoader: true });
     router.replace("/admin");
   };
 
