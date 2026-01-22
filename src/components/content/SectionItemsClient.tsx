@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ChevronLeft, ChevronRight, FileText, Eye } from "lucide-react";
+import { ChevronLeft, ChevronRight, FileText, Eye, FolderOpen } from "lucide-react";
 import HomeSidebar from "@/components/HomeSidebar";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import type { SectionSlug } from "@/lib/sections";
@@ -66,6 +66,7 @@ const SectionItemsClient = ({
   );
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const [items, setItems] = useState<SectionItem[] | null>(null);
+  const [loadedSubmenu, setLoadedSubmenu] = useState<string | null>(null);
   const [siteContent, setSiteContent] = useState<SiteContent | null>(
     () => siteContentCache
   );
@@ -153,6 +154,7 @@ const SectionItemsClient = ({
   useEffect(() => {
     if (!activeSubmenu) {
       setItems([]);
+      setLoadedSubmenu(null);
       return;
     }
 
@@ -160,6 +162,7 @@ const SectionItemsClient = ({
     const cached = itemsCache.get(cacheKey);
     if (cached) {
       setItems(cached);
+      setLoadedSubmenu(activeSubmenu);
       setIsLoadingItems(false);
       return;
     }
@@ -179,6 +182,7 @@ const SectionItemsClient = ({
         const resolved = data.items ?? [];
         itemsCache.set(cacheKey, resolved);
         setItems(resolved);
+        setLoadedSubmenu(activeSubmenu);
       } finally {
         if (isActive) {
           setIsLoadingItems(false);
@@ -203,7 +207,9 @@ const SectionItemsClient = ({
 
   const showItems = Boolean(initialSubmenu && activeSubmenu);
   const isLoading =
-    isLoadingSubmenus || (showItems && isLoadingItems) || isLoadingContent;
+    isLoadingSubmenus ||
+    isLoadingContent ||
+    (showItems && (isLoadingItems || loadedSubmenu !== activeSubmenu));
   const pageSize = 5;
   const paginationState = useMemo(() => {
     const allItems = showItems ? items ?? [] : [];
@@ -326,9 +332,23 @@ const SectionItemsClient = ({
                     </div>
                   ))}
                 </>
-              ) : paginationState.pagedItems.length === 0 ? (
-                <div className="rounded-3xl border border-white/70 bg-white/95 p-8 text-center text-sm text-[#4c5f66] shadow-xl backdrop-blur">
-                  No content yet. Please check back soon.
+              ) : items &&
+                loadedSubmenu === activeSubmenu &&
+                paginationState.pagedItems.length === 0 ? (
+                <div className="rounded-3xl border border-white/70 bg-white/95 p-8 shadow-xl backdrop-blur">
+                  <div className="mx-auto flex max-w-xl flex-col items-center gap-4 text-center">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/70 bg-[#f3ede1] text-[#7A4C2C] shadow-inner">
+                      <FolderOpen size={24} />
+                    </div>
+                    <h3 className="text-base font-semibold text-[#17323D]">
+                      No items yet
+                    </h3>
+                    <div className="w-full max-w-sm space-y-2">
+                      <div className="h-3 w-3/4 rounded-full bg-[#efe7d9] mx-auto" />
+                      <div className="h-3 w-full rounded-full bg-[#f3ede1] mx-auto" />
+                      <div className="h-3 w-2/3 rounded-full bg-[#efe7d9] mx-auto" />
+                    </div>
+                  </div>
                 </div>
               ) : (
                 paginationState.pagedItems.map((item) => {
